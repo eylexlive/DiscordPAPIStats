@@ -1,0 +1,17 @@
+# TOKEN
+bot-token: Your token here.
+
+# DO NOT change unless necessary
+avatar-api: 'https://minotar.net/avatar/{player}'
+
+# Stats command prefix + command
+stats-command: '.stats'
+
+# Stats command's embed
+stats-embed:
+  description: 'Stats for player `{player}`'
+  author: '{online_status}'
+  color: gray
+  field-format: '**{stats_name}**%VALUE {stats_value}'
+
+

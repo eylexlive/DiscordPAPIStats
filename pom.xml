@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.eylexlive.discordpapistats</groupId>
+    <artifactId>DiscordPAPIStats</artifactId>
+    <description>Show your players stats on your Dicord server!</description>
+    <version>1.0</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <name>jcenter-bintray</name>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <repository>
+            <id>placeholderapi</id>
+            <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>4.2.0_223</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>club.minnced</groupId>
+                    <artifactId>opus-java</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.9.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.name} v${project.version}</finalName>
+        <defaultGoal>clean install</defaultGoal>
+        <sourceDirectory>src/main/java</sourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <version>3.8.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>net.dv8tion.jda</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.jda</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>com.fasterxml.jackson</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.jackson</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>com.iwebpp.crypto</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.crypto</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>com.neovisionaries.ws</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.ws</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>org.apache.commons.collections4</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.collections4</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>okhttp3</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.okhttp3</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>okio</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.okio</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>gnu.trove</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.trove</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>org.jetbrains.annotations</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.annotations.jetbrains</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>javax.annotation</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.annotations.javax</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>org.slf4j</pattern>
+                            <shadedPattern>io.github.eylexlive.discordpapistats.depend.slf4j</shadedPattern>
+                        </relocation>
+                    </relocations>
+
+                    <minimizeJar>true</minimizeJar>
+
+                    <filters>
+                        <filter>
+                            <artifact>com.fasterxml.jackson.core:jackson-databind</artifact>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                        </filter>
+                    </filters>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

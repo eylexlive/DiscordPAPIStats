@@ -1,0 +1,12 @@
+name: DiscordPAPIStats
+version: ${project.version}
+author: EylexLive
+main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
+description: ${project.description}
+depend: [PlaceholderAPI]
+
+commands:
+  discordstats:
+    aliases:
+      - dcstats
+      - dcpstats

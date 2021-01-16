@@ -15,5 +15,9 @@ stats-embed:
   author: '{online_status}'
   color: gray
   field-format: '**{stats_name}**%VALUE {stats_value}'
-
+  custom-fields:
+    enabled: false
+    fields:
+      - '**{stats_Kills}**%VALUE {stats_Kills_value}'
+      - '**{stats_Deaths}**%VALUE {stats_Deaths_value}'
 

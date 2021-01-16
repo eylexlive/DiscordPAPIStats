@@ -106,26 +106,63 @@ public final class StatsCommand extends ListenerAdapter {
                         user.getName() + "#" + user.getDiscriminator(),
                         user.getAvatarUrl()
                 );
+
                 embed.setTimestamp(Instant.now());
 
                 final StatsManager statsManager = plugin.getStatsManager();
-                statsManager.getStatsList().forEach(stats ->  {
-                    final String statsValue = (
-                            online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
+                if (!ConfigUtil.getBoolean("stats-embed.custom-fields.enabled")) {
+                    statsManager.getStatsList().forEach(stats ->  {
+                        final String statsValue = (
+                                online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
+                        );
+
+                        final String fieldFormat = Objects.requireNonNull(
+                                ConfigUtil.getString(
+                                        "stats-embed.field-format",
+                                        "stats_name:" + stats.getName(),
+                                        "stats_value:" + statsValue
+                                )
+                        );
+
+                        final String[] fieldParts = fieldFormat.split("%VALUE");
+
+                        embed.addField(
+                                fieldParts[0],
+                                fieldParts[1], true
+                        );
+                    });
+
+                } else {
+                    final List<String> customFieldList = ConfigUtil.getStringList(
+                            "stats-embed.custom-fields.fields"
                     );
 
-                    final String fieldFormat = Objects.requireNonNull(
-                            ConfigUtil.getString(
-                                    "stats-embed.field-format",
-                                    "stats_name:" + stats.getName(),
-                                    "stats_value:" + statsValue
-                            )
-                    );
+                    statsManager.getStatsList().forEach(stats ->  {
+                        final String statsValue = (
+                                online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
+                        );
 
-                    final String[] fieldParts = fieldFormat.split("%VALUE");
+                        customFieldList.replaceAll(s ->
+                                s.replace(
+                                        "{stats_" + stats.getName() + "}", stats.getName()
+                                )
+                        );
+                        customFieldList.replaceAll(s ->
+                                s.replace(
+                                        "{stats_" + stats.getName() + "_value}", statsValue
+                                )
+                        );
+                    });
 
-                    embed.addField(fieldParts[0], fieldParts[1], true);
-                });
+                    customFieldList.forEach(field -> {
+                        final String[] fieldParts = field.split("%VALUE");
+                        embed.addField(
+                                fieldParts[0],
+                                fieldParts[1],
+                                true
+                        );
+                    });
+                }
 
                 channel.sendMessage(embed.build()).queue();
             }

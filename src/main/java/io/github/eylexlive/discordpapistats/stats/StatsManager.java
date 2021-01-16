@@ -60,6 +60,26 @@ public final class StatsManager {
         );
     }
 
+    public boolean setName(Stats stats, String newName) {
+        final boolean success = plugin.getStatsDatabase().update(
+               "alter table '" + stats.getTableName() + "' rename to '" + newName + "%" + stats.getPlaceholder() + "'"
+        );
+
+        stats.setName(newName);
+
+        return success;
+    }
+
+    public boolean setPlaceholder(Stats stats, String newPlaceholder) {
+        final boolean success = plugin.getStatsDatabase().update(
+                "alter table '" + stats.getTableName() + "' rename to '" + stats.getName() + "%" + newPlaceholder + "'"
+        );
+
+        stats.setPlaceholder(newPlaceholder);
+
+        return success;
+    }
+
     public String getStats(Stats stats, String name) {
         try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name.toLowerCase() + "')")) {
             if (result.next())

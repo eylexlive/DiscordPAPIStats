@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+
 public final class DiscordStatsCommand implements CommandExecutor {
 
     private final DiscordPAPIStats plugin;
@@ -39,8 +40,10 @@ public final class DiscordStatsCommand implements CommandExecutor {
                 player.sendMessage(mainMsg);
                 player.sendMessage(new String[] {
                                 "",
-                                "   §8▸ §f/dcstats create §e<name> <placeholder>",
-                                "   §8▸ §f/dcstats delete §e<name>",
+                                "   §8▸ §f/dcstats create §e<stats name> <placeholder>",
+                                "   §8▸ §f/dcstats delete §e<stats name>",
+                                "   §8▸ §f/dcstats setName §e<stats name> <new name>",
+                                "   §8▸ §f/dcstats setPlaceholder §e<stats name> <new placeholder>",
                                 "   §8▸ §f/dcstats list",
                                 "   §8▸ §f/dcstats reload",
                                 "",
@@ -92,23 +95,13 @@ public final class DiscordStatsCommand implements CommandExecutor {
 
             else if (args.length == 3) {
                 if (args[0].equalsIgnoreCase("create")) {
-                    final String placeholder = args[2], name = args[1];
-                    if (placeholder.contains("%")) {
-                        player.sendMessage(
-                                "§cYou must enter the placeholder value without '%' in it."
-                        );
+                    final ValidateState state = isValidate(player, args[2]);
+                    if (!state.isValidate()) {
+                        player.sendMessage("§c" + state.getCause());
                         return true;
                     }
 
-                    final String replaced = PlaceholderAPI.setPlaceholders(player, "%" + placeholder + "%");
-                    if (replaced.equals("%" + placeholder + "%")) {
-                        player.sendMessage(
-                                "§cThe placeholder entered does not return a valid value. You may need to download expansion."
-                        );
-                        return true;
-                    }
-
-                    final Stats stats = new Stats(name, placeholder);
+                    final Stats stats = new Stats(args[1], args[2]);
                     if (statsManager.getStatsByName(stats.getName()) != null) {
                         player.sendMessage(
                                 "§cStats already exists."
@@ -127,11 +120,94 @@ public final class DiscordStatsCommand implements CommandExecutor {
                         );
                     }
                 }
+
+                else if (args[0].equalsIgnoreCase("setPlaceholder")) {
+                    final Stats stats = statsManager.getStatsByName(args[1]);
+                    if (stats == null) {
+                        player.sendMessage(
+                                "§cInvalid stats."
+                        );
+                        return true;
+                    }
+
+                    final ValidateState state = isValidate(player, args[2]);
+                    if (!state.isValidate()) {
+                        player.sendMessage("§c" + state.getCause());
+                        return true;
+                    }
+
+                    if (!statsManager.setPlaceholder(stats, args[2])) {
+                        player.sendMessage(
+                                "§cAn error occurred while setting stats placeholder."
+                        );
+
+                    } else {
+                        player.sendMessage(
+                                "§aStats placeholder has been successfully changed to §f" + args[2]
+                        );
+                    }
+                }
+
+                else if (args[0].equalsIgnoreCase("setName")) {
+                    final Stats stats = statsManager.getStatsByName(args[1]);
+                    if (stats == null) {
+                        player.sendMessage(
+                                "§cInvalid stats."
+                        );
+                        return true;
+                    }
+
+                    if (!statsManager.setName(stats, args[2])) {
+                        player.sendMessage(
+                                "§cAn error occurred while setting stats name."
+                        );
+
+                    } else {
+                        player.sendMessage(
+                                "§aStats name has been successfully changed to §f" + args[2]
+                        );
+                    }
+                }
             }
 
         } else {
             player.sendMessage(mainMsg);
         }
         return true;
+    }
+
+    private ValidateState isValidate(Player player, String placeholder) {
+        if (placeholder.contains("%"))
+            return new ValidateState(
+                    "You must enter the placeholder value without '%' in it.",
+                    false
+            );
+
+        if (PlaceholderAPI.setPlaceholders(player, "%" + placeholder + "%").equals("%" + placeholder + "%"))
+            return new ValidateState(
+                    "The placeholder entered does not return a valid value. You may need to download expansion.",
+                    false
+            );
+        return new ValidateState(" ",true);
+    }
+
+    private class ValidateState {
+
+        private final String cause;
+
+        private final boolean validate;
+
+        public ValidateState(String cause, boolean validate) {
+            this.cause = cause;
+            this.validate = validate;
+        }
+
+        public String getCause() {
+            return cause;
+        }
+
+        public boolean isValidate() {
+            return validate;
+        }
     }
 }

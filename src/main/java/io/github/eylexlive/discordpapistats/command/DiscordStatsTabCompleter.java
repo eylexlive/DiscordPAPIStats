@@ -27,6 +27,8 @@ public final class DiscordStatsTabCompleter implements TabCompleter {
             return Arrays.asList(
                     "create",
                     "delete",
+                    "setName",
+                    "setPlaceholder",
                     "list",
                     "reload"
             );
@@ -36,8 +38,12 @@ public final class DiscordStatsTabCompleter implements TabCompleter {
             final List<String> list = new ArrayList<>();
 
             stats.forEach(stat -> list.add(stat.getName()));
-            if (args[0].equalsIgnoreCase("delete"))
-                return list;
+            switch (args[0]) {
+                case "delete":
+                case "setName":
+                case "setPlaceholder":
+                    return list;
+            }
             return new ArrayList<>();
         }
         return new ArrayList<>();

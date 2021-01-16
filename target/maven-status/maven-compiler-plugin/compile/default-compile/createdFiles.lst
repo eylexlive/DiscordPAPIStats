@@ -9,6 +9,7 @@ io\github\eylexlive\discordpapistats\util\Metrics$SingleLineChart.class
 io\github\eylexlive\discordpapistats\command\discord\StatsCommand.class
 io\github\eylexlive\discordpapistats\stats\Stats.class
 io\github\eylexlive\discordpapistats\stats\StatsDatabase.class
+io\github\eylexlive\discordpapistats\command\DiscordStatsCommand$ValidateState.class
 io\github\eylexlive\discordpapistats\util\Metrics$2.class
 io\github\eylexlive\discordpapistats\command\DiscordStatsCommand.class
 io\github\eylexlive\discordpapistats\DiscordPAPIStats$1.class

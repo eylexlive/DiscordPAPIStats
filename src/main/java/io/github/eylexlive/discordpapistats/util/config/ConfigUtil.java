@@ -29,13 +29,17 @@ public final class ConfigUtil {
         for (String str : placeholders) {
             final String placeholder = str.split(":")[0];
             final String value = str.replaceFirst(Matcher.quoteReplacement(placeholder + ":"), "");
-            s = s.replaceAll("\\{"+Matcher.quoteReplacement(placeholder)+"\\}", value);
+            s = s.replaceAll("\\{" + Matcher.quoteReplacement(placeholder) + "\\}", value);
         }
         return s;
     }
 
+    @NotNull
     public static List<String> getStringList(String path) {
         return plugin.getConfig().getStringList(path);
     }
 
+    public static boolean getBoolean(String path) {
+        return plugin.getConfig().getBoolean(path);
+    }
 }

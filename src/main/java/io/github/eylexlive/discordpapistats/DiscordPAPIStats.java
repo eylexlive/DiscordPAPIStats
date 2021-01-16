@@ -86,10 +86,11 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
 
         // Save data every minute to see offline player stats
         getServer().getScheduler().runTaskTimerAsynchronously(
-                this, () -> statsManager.saveAll(),100L, 1200L
+                this, () -> statsManager.saveAll(), 100L, 1200L
         );
     }
-    @EventHandler
+
+    @Override
     public void onDisable() {
         if (statsDatabase != null)
             statsDatabase.close();

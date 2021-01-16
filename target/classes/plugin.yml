@@ -1,8 +1,8 @@
 name: DiscordPAPIStats
-version: 1.0
+version: 1.1
 author: EylexLive
 main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
-description: Show your players stats on your Dicord server!
+description: Show your players stats on your Discord server!
 depend: [PlaceholderAPI]
 
 commands:

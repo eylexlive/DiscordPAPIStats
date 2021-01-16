@@ -54,10 +54,12 @@ public final class DiscordStatsCommand implements CommandExecutor {
                             "§fStats list:"
                     );
                     statsManager.getStatsList().forEach(stats -> player.sendMessage(
-                            "§8- §e" + stats.getName()
+                            "§8- §e" + stats.getName() + "§8: §f" + stats.getPlaceholder()
                     ));
-                } else if (args[0].equalsIgnoreCase("reload")) {
-                    plugin.reloadConfig();
+                }
+
+                else if (args[0].equalsIgnoreCase("reload")) {
+                    plugin.getConfig().reload();
                     player.sendMessage(
                             "§aConfig reloaded!"
                     );
@@ -68,8 +70,12 @@ public final class DiscordStatsCommand implements CommandExecutor {
             else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("delete")) {
                     final Stats stats = statsManager.getStatsByName(args[1]);
-                    if (stats == null)
+                    if (stats == null) {
+                        player.sendMessage(
+                                "§cInvalid stats."
+                        );
                         return true;
+                    }
 
                     if (!statsManager.deleteStats(stats)) {
                         player.sendMessage(
@@ -103,6 +109,13 @@ public final class DiscordStatsCommand implements CommandExecutor {
                     }
 
                     final Stats stats = new Stats(name, placeholder);
+                    if (statsManager.getStatsByName(stats.getName()) != null) {
+                        player.sendMessage(
+                                "§cStats already exists."
+                        );
+                        return true;
+                    }
+
                     if (!statsManager.createStats(stats)) {
                         player.sendMessage(
                                 "§cAn error occurred while creating stats."

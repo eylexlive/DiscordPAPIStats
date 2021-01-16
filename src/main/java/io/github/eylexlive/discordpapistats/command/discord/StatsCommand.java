@@ -2,6 +2,7 @@ package io.github.eylexlive.discordpapistats.command.discord;
 
 import io.github.eylexlive.discordpapistats.DiscordPAPIStats;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
+import io.github.eylexlive.discordpapistats.util.config.ConfigUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -13,9 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
-public final class StatsCommand  extends ListenerAdapter {
+public final class StatsCommand extends ListenerAdapter {
 
     private final DiscordPAPIStats plugin;
 
@@ -31,13 +33,22 @@ public final class StatsCommand  extends ListenerAdapter {
 
         final MessageChannel channel = event.getChannel();
 
-        final String command = plugin.getConfig().getString("stats-command");
+        final List<String> commands = ConfigUtil.getStringList(
+                "stats-command-aliases"
+        );
+
+        commands.add(
+                ConfigUtil.getString(
+                        "stats-command"
+                )
+        );
+
         final String[] parts = event.getMessage().getContentRaw().split(" ");
 
-        if (parts[0].equalsIgnoreCase(command)) {
+        if (commands.stream().anyMatch(parts[0]::equalsIgnoreCase)) {
             if (parts.length == 1) {
                 channel.sendMessage(
-                        "> Correct usage: `" + command + " <player>" + "`"
+                        "> Correct usage: `" + parts[0] + " <player>" + "`"
                 ).queue();
             }
 
@@ -47,7 +58,12 @@ public final class StatsCommand  extends ListenerAdapter {
                 final String name = parts[1];
 
                 embed.setDescription(
-                        Objects.requireNonNull(plugin.getConfig().getString("stats-embed.description")).replace("{player}", name)
+                        Objects.requireNonNull(
+                                ConfigUtil.getString("stats-embed.description",
+                                        "player:" + name
+                                ),
+                                name
+                        )
                 );
 
                 final Player player = plugin.getServer().getPlayerExact(name);
@@ -55,8 +71,10 @@ public final class StatsCommand  extends ListenerAdapter {
 
                 embed.setAuthor(
                         Objects.requireNonNull(
-                                plugin.getConfig().getString("stats-embed.author")
-                        ).replace("{online_status}", online ? "Online" : "Offline"),
+                                ConfigUtil.getString("stats-embed.author",
+                                        "online_status:" + (online ? "Online" : "Offline")
+                                )
+                        ),
                         null,
                         online ? "https://eylexlive.github.io/green.png" : "https://eylexlive.github.io/red.png"
                 );
@@ -64,7 +82,9 @@ public final class StatsCommand  extends ListenerAdapter {
                 Color color;
                 try {
                     final Field field = Color.class.getField(
-                            Objects.requireNonNull(plugin.getConfig().getString("stats-embed.color"))
+                            Objects.requireNonNull(ConfigUtil.getString(
+                                    "stats-embed.color")
+                            )
                     );
                     color = (Color) field.get(null);
                 } catch (Exception e) {
@@ -75,8 +95,11 @@ public final class StatsCommand  extends ListenerAdapter {
 
                 embed.setThumbnail(
                         Objects.requireNonNull(
-                                plugin.getConfig().getString("avatar-api")
-                        ).replace("{player}", name)
+                                ConfigUtil.getString(
+                                        "avatar-api",
+                                        "player:" + name
+                                )
+                        )
                 );
 
                 embed.setFooter(
@@ -92,8 +115,12 @@ public final class StatsCommand  extends ListenerAdapter {
                     );
 
                     final String fieldFormat = Objects.requireNonNull(
-                            plugin.getConfig().getString("stats-embed.field-format")
-                    ).replace("{stats_name}", stats.getName()).replace("{stats_value}", statsValue);
+                            ConfigUtil.getString(
+                                    "stats-embed.field-format",
+                                    "stats_name:" + stats.getName(),
+                                    "stats_value:" + statsValue
+                            )
+                    );
 
                     final String[] fieldParts = fieldFormat.split("%VALUE");
 

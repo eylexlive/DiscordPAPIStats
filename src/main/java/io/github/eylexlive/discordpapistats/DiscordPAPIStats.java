@@ -6,6 +6,8 @@ import io.github.eylexlive.discordpapistats.command.discord.StatsCommand;
 import io.github.eylexlive.discordpapistats.stats.StatsDatabase;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
 import io.github.eylexlive.discordpapistats.util.Metrics;
+import io.github.eylexlive.discordpapistats.util.UpdateCheck;
+import io.github.eylexlive.discordpapistats.util.config.Config;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -23,6 +25,10 @@ import java.util.concurrent.CompletableFuture;
 
 public final class DiscordPAPIStats extends JavaPlugin implements Listener {
 
+    private static DiscordPAPIStats instance;
+
+    private Config config;
+
     private StatsDatabase statsDatabase;
 
     private StatsManager statsManager;
@@ -31,7 +37,11 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        if (instance != null)
+            throw new IllegalStateException("DiscordPAPIStats can not be started twice!");
+        instance = this;
+
+        config = new Config("config");
 
         statsDatabase = new StatsDatabase(this);
         statsDatabase.init();
@@ -49,10 +59,13 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler (priority = EventPriority.MONITOR)
             public void handleJoinEvent(PlayerJoinEvent event) {
+                // Save data to see offline player stats **NOT WORKS ON QUIT EVENT**
                 CompletableFuture.runAsync(() -> statsManager.saveStats(event.getPlayer()));
             }
 
         }, this);
+
+        new UpdateCheck(this);
 
         CompletableFuture.runAsync(() -> {
             if (jda != null)
@@ -60,7 +73,7 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
 
             try {
                 jda = new JDABuilder(AccountType.BOT)
-                        .setToken(getConfig().getString("bot-token"))
+                        .setToken(config.getString("bot-token"))
                         .setAutoReconnect(true)
                         .addEventListeners(new StatsCommand(this))
                         .build();
@@ -71,6 +84,7 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
 
         new Metrics(this);
 
+        // Save data every minute to see offline player stats
         getServer().getScheduler().runTaskTimerAsynchronously(
                 this, () -> statsManager.saveAll(),100L, 1200L
         );
@@ -90,6 +104,17 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
             });
             jda.shutdownNow();
         }
+    }
+
+    @NotNull
+    public static DiscordPAPIStats getInstance() {
+        return instance;
+    }
+
+    @NotNull
+    @Override
+    public Config getConfig() {
+        return config;
     }
 
     @NotNull

@@ -6,6 +6,8 @@ avatar-api: 'https://minotar.net/avatar/{player}'
 
 # Stats command prefix + command
 stats-command: '.stats'
+stats-command-aliases:
+  - '.mcstats'
 
 # Stats command's embed
 stats-embed:

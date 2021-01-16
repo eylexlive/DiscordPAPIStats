@@ -20,12 +20,14 @@ public final class StatsManager {
     }
 
     public void loadStats() {
-        try (ResultSet result = plugin.getStatsDatabase().query("select name from sqlite_master where type ='table' and name not like 'sqlite_%';")) {
+        try (ResultSet result = plugin.getStatsDatabase().query("select name from sqlite_master where type ='table' and name not like 'sqlite_%'")) {
             while (result.next()) {
                 final String[] parts = result.getString(1).split("%");
                 if (parts.length != 2)
                     continue;
+
                 statsList.add(new Stats(parts[0], parts[1]));
+
                 plugin.getLogger().info("[l] Loaded " + parts[0]);
             }
 
@@ -37,12 +39,18 @@ public final class StatsManager {
 
     public boolean createStats(Stats stats) {
         statsList.add(stats);
-        plugin.getServer().getScheduler().runTaskLaterAsynchronously(
-                plugin, this::saveAll, 10L
-        );
-        return plugin.getStatsDatabase().update(
+
+        final boolean success = plugin.getStatsDatabase().update(
                 "create table if not exists '" + stats.getTableName() + "' (name TEXT PRIMARY KEY, value TEXT)"
         );
+
+        if (success) {
+            plugin.getServer().getScheduler().runTaskAsynchronously(
+                    plugin, this::saveAll
+            );
+        }
+
+        return success;
     }
 
     public boolean deleteStats(Stats stats) {
@@ -53,7 +61,7 @@ public final class StatsManager {
     }
 
     public String getStats(Stats stats, String name) {
-        try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where name = '" + name + "'")) {
+        try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name.toLowerCase() + "')")) {
             if (result.next())
                 return result.getString("value");
         } catch (SQLException e) {
@@ -69,7 +77,7 @@ public final class StatsManager {
     public void saveStats(Player player) {
         statsList.forEach(stats -> {
             final String value = PlaceholderAPI.setPlaceholders(player, "%" + stats.getPlaceholder() + "%");
-            if (!plugin.getStatsDatabase().validateData("select * from '" + stats.getTableName() + "' where name = '"+ player.getName() + "';")) {
+            if (!plugin.getStatsDatabase().validateData("select * from '" + stats.getTableName() + "' where name = '"+ player.getName() + "'")) {
                 plugin.getStatsDatabase().update(
                         "insert into '" + stats.getTableName() + "' (name, value) values ('" + player.getName()+"', '" + value + "')"
                 );

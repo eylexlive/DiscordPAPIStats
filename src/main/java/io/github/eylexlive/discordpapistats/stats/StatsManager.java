@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public final class StatsManager {
 
@@ -20,21 +21,32 @@ public final class StatsManager {
     }
 
     public void loadStats() {
+        plugin.getLogger().info(
+                "[l] Loading all stats... "
+        );
+
         try (ResultSet result = plugin.getStatsDatabase().query("select name from sqlite_master where type ='table' and name not like 'sqlite_%'")) {
             while (result.next()) {
                 final String[] parts = result.getString(1).split("%");
                 if (parts.length != 2)
                     continue;
 
-                statsList.add(new Stats(parts[0], parts[1]));
+                statsList.add(
+                        new Stats(parts[0], parts[1])
+                );
 
-                plugin.getLogger().info("[l] Loaded " + parts[0]);
+                plugin.getLogger().info(
+                        "[l] Loaded " + parts[0]
+                );
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        plugin.getLogger().info(
+                "[l] Successfully loaded " + statsList.size() + " stat" + (statsList.size() > 1 ? "s." : ".")
+        );
     }
 
     public boolean createStats(Stats stats) {
@@ -44,11 +56,7 @@ public final class StatsManager {
                 "create table if not exists '" + stats.getTableName() + "' (name TEXT PRIMARY KEY, value TEXT)"
         );
 
-        if (success) {
-            plugin.getServer().getScheduler().runTaskAsynchronously(
-                    plugin, this::saveAll
-            );
-        }
+        if (success) CompletableFuture.runAsync(this::saveAll);
 
         return success;
     }

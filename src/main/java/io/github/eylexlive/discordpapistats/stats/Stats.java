@@ -26,6 +26,6 @@ public final class Stats {
     }
 
     public String getTableName() {
-        return name + "%" + getPlaceholder();
+        return name + "%" + placeholder;
     }
 }

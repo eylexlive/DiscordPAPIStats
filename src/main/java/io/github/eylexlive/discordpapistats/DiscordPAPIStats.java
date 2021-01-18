@@ -1,5 +1,6 @@
 package io.github.eylexlive.discordpapistats;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import io.github.eylexlive.discordpapistats.command.DiscordStatsCommand;
 import io.github.eylexlive.discordpapistats.command.DiscordStatsTabCompleter;
 import io.github.eylexlive.discordpapistats.command.discord.StatsCommand;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.security.auth.login.LoginException;
 import java.util.concurrent.CompletableFuture;
 
-public final class DiscordPAPIStats extends JavaPlugin implements Listener {
+public final class DiscordPAPIStats extends JavaPlugin {
 
     private static DiscordPAPIStats instance;
 
@@ -32,6 +33,8 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
     private StatsDatabase statsDatabase;
 
     private StatsManager statsManager;
+
+    private DiscordSRV discordSRV;
 
     private JDA jda = null;
 
@@ -42,6 +45,13 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
         instance = this;
 
         config = new Config("config");
+
+        if (getServer().getPluginManager().isPluginEnabled("DiscordSRV")) {
+            discordSRV = DiscordSRV.getPlugin();
+            getLogger().info(
+                    "[l] Hooked into DiscordSRV"
+            );
+        }
 
         statsDatabase = new StatsDatabase(this);
         statsDatabase.init();
@@ -126,5 +136,9 @@ public final class DiscordPAPIStats extends JavaPlugin implements Listener {
     @NotNull
     public StatsManager getStatsManager() {
         return statsManager;
+    }
+
+    public DiscordSRV getDiscordSRV() {
+        return discordSRV;
     }
 }

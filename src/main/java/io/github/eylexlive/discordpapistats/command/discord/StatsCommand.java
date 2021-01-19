@@ -16,7 +16,6 @@ import java.awt.Color;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public final class StatsCommand extends ListenerAdapter {
@@ -111,11 +110,8 @@ public final class StatsCommand extends ListenerAdapter {
         final EmbedBuilder embed = new EmbedBuilder();
 
         embed.setDescription(
-                Objects.requireNonNull(
-                        ConfigUtil.getString("stats-embed.description",
-                                "player:" + name
-                        ),
-                        name
+                ConfigUtil.getString("stats-embed.description",
+                        "player:" + name
                 )
         );
 
@@ -123,10 +119,8 @@ public final class StatsCommand extends ListenerAdapter {
         final boolean online = player != null;
 
         embed.setAuthor(
-                Objects.requireNonNull(
-                        ConfigUtil.getString("stats-embed.author",
-                                "online_status:" + (online ? "Online" : "Offline")
-                        )
+                ConfigUtil.getString("stats-embed.author",
+                        "online_status:" + (online ? "Online" : "Offline")
                 ),
                 null,
                 online ? "https://eylexlive.github.io/green.png" : "https://eylexlive.github.io/red.png"
@@ -135,9 +129,7 @@ public final class StatsCommand extends ListenerAdapter {
         Color color;
         try {
             final Field field = Color.class.getField(
-                    Objects.requireNonNull(ConfigUtil.getString(
-                            "stats-embed.color")
-                    )
+                    "stats-embed.color"
             );
             color = (Color) field.get(null);
         } catch (Exception e) {
@@ -147,11 +139,9 @@ public final class StatsCommand extends ListenerAdapter {
         embed.setColor(color);
 
         embed.setThumbnail(
-                Objects.requireNonNull(
-                        ConfigUtil.getString(
-                                "avatar-api",
-                                "player:" + name
-                        )
+                ConfigUtil.getString(
+                        "avatar-api",
+                        "player:" + name
                 )
         );
 
@@ -169,12 +159,11 @@ public final class StatsCommand extends ListenerAdapter {
                         online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
                 );
 
-                final String fieldFormat = Objects.requireNonNull(
-                        ConfigUtil.getString(
-                                "stats-embed.field-format",
-                                "stats_name:" + stats.getName(),
-                                "stats_value:" + statsValue
-                        )
+                final String fieldFormat = ConfigUtil.getString(
+                        "stats-embed.field-format",
+                        "stats_name:" + stats.getName(),
+                        "stats_value:" + statsValue,
+                        "player_name:" + name
                 );
 
                 final String[] fieldParts = fieldFormat.split("%VALUE");
@@ -195,6 +184,11 @@ public final class StatsCommand extends ListenerAdapter {
                         online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
                 );
 
+                customFieldList.replaceAll(s ->
+                        s.replace(
+                                "{player_name}", name
+                        )
+                );
                 customFieldList.replaceAll(s ->
                         s.replace(
                                 "{stats_" + stats.getName() + "}", stats.getName()

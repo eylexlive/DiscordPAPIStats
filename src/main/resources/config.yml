@@ -18,6 +18,7 @@ stats-embed:
   custom-fields:
     enabled: false
     fields:
+      - '**Name**%VALUE {player_name}'
       - '**{stats_Kills}**%VALUE {stats_Kills_value}'
       - '**{stats_Deaths}**%VALUE {stats_Deaths_value}'
 

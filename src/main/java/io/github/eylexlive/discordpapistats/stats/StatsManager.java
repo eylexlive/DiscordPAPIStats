@@ -50,22 +50,28 @@ public final class StatsManager {
     }
 
     public boolean createStats(Stats stats) {
-        statsList.add(stats);
-
         final boolean success = plugin.getStatsDatabase().update(
                 "create table if not exists '" + stats.getTableName() + "' (name TEXT PRIMARY KEY, value TEXT)"
         );
 
-        if (success) CompletableFuture.runAsync(this::saveAll);
+        if (success) {
+            statsList.add(stats);
+            CompletableFuture.runAsync(
+                    this::saveAll
+            );
+        }
 
         return success;
     }
 
     public boolean deleteStats(Stats stats) {
-        statsList.remove(stats);
-        return plugin.getStatsDatabase().update(
+        final boolean success = plugin.getStatsDatabase().update(
                 "drop table '" + stats.getTableName() + "'"
         );
+
+        if (success) statsList.remove(stats);
+
+        return success;
     }
 
     public boolean setName(Stats stats, String newName) {
@@ -73,7 +79,7 @@ public final class StatsManager {
                "alter table '" + stats.getTableName() + "' rename to '" + newName + "%" + stats.getPlaceholder() + "'"
         );
 
-        stats.setName(newName);
+        if (success) stats.setName(newName);
 
         return success;
     }
@@ -83,10 +89,11 @@ public final class StatsManager {
                 "alter table '" + stats.getTableName() + "' rename to '" + stats.getName() + "%" + newPlaceholder + "'"
         );
 
-        stats.setPlaceholder(newPlaceholder);
+        if (success) stats.setPlaceholder(newPlaceholder);
 
         return success;
     }
+
 
     public String getStats(Stats stats, String name) {
         try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name.toLowerCase() + "')")) {
@@ -99,7 +106,10 @@ public final class StatsManager {
     }
 
     public String getStats(Stats stats, Player player) {
-        return PlaceholderAPI.setPlaceholders(player, "%" + stats.getPlaceholder() + "%");
+        return PlaceholderAPI.setPlaceholders(
+                player,
+                "%" + stats.getPlaceholder() + "%"
+        );
     }
 
     public void saveStats(Player player) {
@@ -119,12 +129,16 @@ public final class StatsManager {
     }
 
     public void saveAll() {
-        plugin.getServer().getOnlinePlayers().forEach(this::saveStats);
+        plugin.getServer()
+                .getOnlinePlayers()
+                .forEach(
+                        this::saveStats
+                );
     }
 
     public Stats getStatsByName(String name) {
         for (Stats stats : statsList) {
-            if (stats.getName().equals(name))
+            if (stats.getName().equalsIgnoreCase(name))
                 return stats;
         }
         return null;

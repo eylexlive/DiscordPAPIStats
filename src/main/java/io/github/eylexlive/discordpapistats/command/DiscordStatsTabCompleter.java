@@ -38,10 +38,10 @@ public final class DiscordStatsTabCompleter implements TabCompleter {
             final List<String> list = new ArrayList<>();
 
             stats.forEach(stat -> list.add(stat.getName()));
-            switch (args[0]) {
+            switch (args[0].toLowerCase()) {
                 case "delete":
-                case "setName":
-                case "setPlaceholder":
+                case "setname":
+                case "setplaceholder":
                     return list;
             }
             return new ArrayList<>();

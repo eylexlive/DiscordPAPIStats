@@ -102,8 +102,18 @@ public final class StatsCommand extends ListenerAdapter {
     }
 
     private String matchDiscordSRVPlayer(String discordID) {
-        final UUID uuid = plugin.getDiscordSRV().getAccountLinkManager().getUuid(discordID);
-        return uuid != null ? plugin.getServer().getOfflinePlayer(uuid).getName() : null;
+        final UUID uuid = plugin.getDiscordSRV()
+                .getAccountLinkManager()
+                .getUuid(
+                        discordID
+                );
+
+        return (
+                uuid != null ?
+                        plugin.getServer().getOfflinePlayer(uuid).getName()
+                        :
+                        null
+        );
     }
 
     private EmbedBuilder getEmbed(User user, String name) {
@@ -138,12 +148,21 @@ public final class StatsCommand extends ListenerAdapter {
 
         embed.setColor(color);
 
-        embed.setThumbnail(
-                ConfigUtil.getString(
-                        "avatar-api",
-                        "player:" + name
-                )
-        );
+        try {
+            embed.setThumbnail(
+                    ConfigUtil.getString(
+                            "avatar-api",
+                            "player:" + name
+                    )
+            );
+        } catch (IllegalArgumentException e) {
+            embed.setThumbnail(
+                    ConfigUtil.getString(
+                            "avatar-api",
+                            "player:Steve"
+                    )
+            );
+        }
 
         embed.setFooter(
                 user.getName() + "#" + user.getDiscriminator(),
@@ -210,6 +229,7 @@ public final class StatsCommand extends ListenerAdapter {
                 );
             });
         }
+
         return embed;
     }
 }

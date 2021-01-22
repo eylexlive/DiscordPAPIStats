@@ -47,12 +47,18 @@ public final class Config extends YamlConfiguration {
                 };
 
         final Set<String> keys = cfg[1].getConfigurationSection("").getKeys(true);
-        final boolean hasUpdate = keys.stream().anyMatch(key -> !cfg[0].contains(key));
+        final boolean hasUpdate = keys.stream().anyMatch(key ->
+                !cfg[0].contains(key)
+        );
 
         if (!hasUpdate) return;
 
         keys.stream().filter(key ->
-                !cfg[0].contains(key)).forEach(key -> cfg[0].set(key, cfg[1].get(key))
+                !cfg[0].contains(key)
+        ).forEach(key ->
+                cfg[0].set(
+                        key, cfg[1].get(key)
+                )
         );
         try { cfg[0].save(file); } catch (IOException ignored) { }
     }

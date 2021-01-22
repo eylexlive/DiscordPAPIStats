@@ -29,16 +29,12 @@ public final class DiscordStatsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (!(sender instanceof Player))
-            return true;
-
         final StatsManager statsManager = plugin.getStatsManager();
-        final Player player = (Player) sender;
 
-        if (player.isOp()) {
+        if (sender.isOp()) {
             if (args.length == 0) {
-                player.sendMessage(mainMsg);
-                player.sendMessage(new String[] {
+                sender.sendMessage(mainMsg);
+                sender.sendMessage(new String[] {
                                 "",
                                 "   §8▸ §f/dcstats create §e<stats name> <placeholder>",
                                 "   §8▸ §f/dcstats delete §e<stats name>",
@@ -53,17 +49,17 @@ public final class DiscordStatsCommand implements CommandExecutor {
 
             else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("list")) {
-                    player.sendMessage(
+                    sender.sendMessage(
                             "§fStats list:"
                     );
-                    statsManager.getStatsList().forEach(stats -> player.sendMessage(
+                    statsManager.getStatsList().forEach(stats -> sender.sendMessage(
                             "§8- §e" + stats.getName() + "§8: §f" + stats.getPlaceholder()
                     ));
                 }
 
                 else if (args[0].equalsIgnoreCase("reload")) {
                     plugin.getConfig().reload();
-                    player.sendMessage(
+                    sender.sendMessage(
                             "§aConfig reloaded!"
                     );
                 }
@@ -74,19 +70,19 @@ public final class DiscordStatsCommand implements CommandExecutor {
                 if (args[0].equalsIgnoreCase("delete")) {
                     final Stats stats = statsManager.getStatsByName(args[1]);
                     if (stats == null) {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§cInvalid stats."
                         );
                         return true;
                     }
 
                     if (!statsManager.deleteStats(stats)) {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§cAn error occurred while deleting stats."
                         );
 
                     } else {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§aStats successfully deleted."
                         );
                     }
@@ -95,27 +91,29 @@ public final class DiscordStatsCommand implements CommandExecutor {
 
             else if (args.length == 3) {
                 if (args[0].equalsIgnoreCase("create")) {
-                    final ValidateState state = isValidate(player, args[2]);
+                    final ValidateState state = isValidate(
+                            args[2]
+                    );
                     if (!state.isValidate()) {
-                        player.sendMessage("§c" + state.getCause());
+                        sender.sendMessage("§c" + state.getCause());
                         return true;
                     }
 
                     final Stats stats = new Stats(args[1], args[2]);
                     if (statsManager.getStatsByName(stats.getName()) != null) {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§cStats already exists."
                         );
                         return true;
                     }
 
                     if (!statsManager.createStats(stats)) {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§cAn error occurred while creating stats."
                         );
 
                     } else {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§aStats successfully created."
                         );
                     }
@@ -124,25 +122,29 @@ public final class DiscordStatsCommand implements CommandExecutor {
                 else if (args[0].equalsIgnoreCase("setPlaceholder")) {
                     final Stats stats = statsManager.getStatsByName(args[1]);
                     if (stats == null) {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§cInvalid stats."
                         );
                         return true;
                     }
 
-                    final ValidateState state = isValidate(player, args[2]);
+                    final ValidateState state = isValidate(
+                            args[2]
+                    );
                     if (!state.isValidate()) {
-                        player.sendMessage("§c" + state.getCause());
+                        sender.sendMessage("§c" + state.getCause());
                         return true;
                     }
 
                     if (!statsManager.setPlaceholder(stats, args[2])) {
-                        player.sendMessage(
-                                "§cAn error occurred while setting stats placeholder."
+                        sender.sendMessage(
+                                "§cAn error occurred while setting stats placeholder.\n"
+                                        +
+                                        "(You can try to try again.)"
                         );
 
                     } else {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§aStats placeholder has been successfully changed to §f" + args[2]
                         );
                     }
@@ -151,19 +153,21 @@ public final class DiscordStatsCommand implements CommandExecutor {
                 else if (args[0].equalsIgnoreCase("setName")) {
                     final Stats stats = statsManager.getStatsByName(args[1]);
                     if (stats == null) {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§cInvalid stats."
                         );
                         return true;
                     }
 
                     if (!statsManager.setName(stats, args[2])) {
-                        player.sendMessage(
-                                "§cAn error occurred while setting stats name."
+                        sender.sendMessage(
+                                "§cAn error occurred while setting stats name.\n"
+                                        +
+                                        "(You can try to try again.)"
                         );
 
                     } else {
-                        player.sendMessage(
+                        sender.sendMessage(
                                 "§aStats name has been successfully changed to §f" + args[2]
                         );
                     }
@@ -171,12 +175,25 @@ public final class DiscordStatsCommand implements CommandExecutor {
             }
 
         } else {
-            player.sendMessage(mainMsg);
+            sender.sendMessage(mainMsg);
         }
+
         return true;
     }
 
-    private ValidateState isValidate(Player player, String placeholder) {
+    private ValidateState isValidate(String placeholder) {
+        final Player player = plugin.getServer()
+                .getOnlinePlayers()
+                .iterator()
+                .next();
+
+        if (player == null) {
+            return new ValidateState(
+                    "Unable to validate placeholder! (Try to use this command in game)",
+                    false
+            );
+        }
+
         if (placeholder.contains("%"))
             return new ValidateState(
                     "You must enter the placeholder value without '%' in it.",
@@ -188,7 +205,11 @@ public final class DiscordStatsCommand implements CommandExecutor {
                     "The placeholder entered does not return a valid value. You may need to download expansion.",
                     false
             );
-        return new ValidateState(" ",true);
+
+        return new ValidateState(
+                " ",
+                true
+        );
     }
 
     private class ValidateState {

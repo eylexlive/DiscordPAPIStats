@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.eylexlive.discordpapistats</groupId>
   <artifactId>DiscordPAPIStats</artifactId>
-  <version>1.4</version>
+  <version>1.5</version>
   <description>Show your players stats on your Discord server!</description>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>

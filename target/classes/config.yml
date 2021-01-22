@@ -16,9 +16,12 @@ stats-embed:
   color: gray
   field-format: '**{stats_name}**%VALUE {stats_value}'
   custom-fields:
+    # Field limit: 25
     enabled: false
     fields:
       - '**Name**%VALUE {player_name}'
+      # {stats_Kills_value} = The value of the statistic named Kills.
       - '**{stats_Kills}**%VALUE {stats_Kills_value}'
+      # {stats_Deaths_value} = The value of the statistic named Deaths.
       - '**{stats_Deaths}**%VALUE {stats_Deaths_value}'
 

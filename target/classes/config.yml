@@ -4,15 +4,27 @@ bot-token: Your token here.
 # DO NOT change unless necessary
 avatar-api: 'https://minotar.net/avatar/{player}'
 
-# Stats command prefix + command
+# Stats command "prefix + command"
 stats-command: '.stats'
 stats-command-aliases:
   - '.mcstats'
 
+# What should display when there is no player data available
+no-data-available: '----'
+
+# The online status content of the embed message
+online-status:
+  # If player is online, the text to write in the embed message
+  online: Online
+  online-image: 'https://eylexlive.github.io/green.png'
+  # If player is offline, the text to write in the embed message
+  offline: Offline
+  offline-image: 'https://eylexlive.github.io/red.png'
+
 # Stats command's embed
 stats-embed:
   description: 'Stats for player `{player}`'
-  author: '{online_status}'
+  author: '{online_status}' # It can be editable from above
   color: gray
   field-format: '**{stats_name}**%VALUE {stats_value}'
   custom-fields:
@@ -24,4 +36,12 @@ stats-embed:
       - '**{stats_Kills}**%VALUE {stats_Kills_value}'
       # {stats_Deaths_value} = The value of the statistic named Deaths.
       - '**{stats_Deaths}**%VALUE {stats_Deaths_value}'
+
+# {nl} = new line
+discord-messages:
+  correct-usage: '> Correct usage: `{command} <player>`'
+  # For DiscordSRV support
+  account-unlinked: '> No account linked to your Discord account.{nl}
+   > Correct usage: `{command} <player | @mention>`'
+  account-unlinked-target: '> {target}, does not have an account linked to a Discord account.'
 

@@ -41,7 +41,9 @@ public final class DiscordPAPIStats extends JavaPlugin {
     @Override
     public void onEnable() {
         if (instance != null)
-            throw new IllegalStateException("DiscordPAPIStats can not be started twice!");
+            throw new IllegalStateException(
+                    "DiscordPAPIStats can not be started twice!"
+            );
         instance = this;
 
         config = new Config("config");
@@ -70,21 +72,25 @@ public final class DiscordPAPIStats extends JavaPlugin {
             @EventHandler (priority = EventPriority.MONITOR)
             public void handleJoinEvent(PlayerJoinEvent event) {
                 // Save data to see offline player stats **NOT WORKS ON QUIT EVENT**
-                CompletableFuture.runAsync(() -> statsManager.saveStats(event.getPlayer()));
+                CompletableFuture.runAsync(() ->
+                        statsManager.saveStats(
+                                event.getPlayer()
+                        )
+                );
             }
 
         }, this);
 
         new UpdateCheck(this);
 
-        CompletableFuture.runAsync(() -> {
+        getServer().getScheduler().runTask(this, () -> {
             if (jda != null)
                 jda.shutdown();
 
             try {
                 jda = new JDABuilder(AccountType.BOT)
-                        .setToken(config.getString("bot-token"))
                         .setAutoReconnect(true)
+                        .setToken(config.getString("bot-token"))
                         .addEventListeners(new StatsCommand(this))
                         .build();
             } catch (LoginException e) {

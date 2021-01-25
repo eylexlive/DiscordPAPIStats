@@ -19,7 +19,9 @@ public final class StatsDatabase {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("SQLite JDBC Driver not found!");
+            throw new IllegalStateException(
+                    "SQLite JDBC Driver not found!"
+            );
         }
 
         try {

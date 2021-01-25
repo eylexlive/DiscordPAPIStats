@@ -18,21 +18,23 @@ public final class UpdateCheck {
     }
 
     private void checkUpdate() {
-
-        log("--------------------------------");
-        log("    DiscordPAPIStats    ");
-        log(" ");
-
-        if (isAvailable()) {
-            log(" A new update is available at ");
-            log(" spigotmc.org/resources/87888 ");
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () ->  {
+            log("--------------------------------");
+            log("    DiscordPAPIStats    ");
             log(" ");
-        } else {
-            log(" Not update found. ");
-            log(" Last version running! ");
-            log(" ");
-        }
-        log("--------------------------------");
+
+            if (isAvailable()) {
+                log(" A new update is available at ");
+                log(" spigotmc.org/resources/87888 ");
+                log(" ");
+            } else {
+                log(" Not update found. ");
+                log(" Last version running! ");
+                log(" ");
+            }
+            log("--------------------------------");
+        });
+
     }
 
     private boolean isAvailable() {
@@ -48,6 +50,7 @@ public final class UpdateCheck {
         } catch (IOException e) {
             return false;
         }
+
         return !plugin.getDescription().getVersion().equals(spigotPluginVersion);
     }
 

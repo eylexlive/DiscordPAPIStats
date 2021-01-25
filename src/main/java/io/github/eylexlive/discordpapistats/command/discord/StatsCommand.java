@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +51,11 @@ public final class StatsCommand extends ListenerAdapter {
             if (parts.length == 1) {
                 if (plugin.getDiscordSRV() == null) {
                     channel.sendMessage(
-                            "> Correct usage: `" + parts[0] + " <player>" + "`"
+                            ConfigUtil.getString(
+                                    "discord-messages.correct-usage",
+                                    "nl:" + "\n",
+                                    "command:" + parts[0]
+                            )
                     ).queue();
 
                 } else {
@@ -64,8 +69,11 @@ public final class StatsCommand extends ListenerAdapter {
 
                     } else {
                         channel.sendMessage(
-                                "> No account linked to your Discord account.\n" +
-                                "> Correct usage: `" + parts[0] + " <player | @mention>" + "`"
+                                ConfigUtil.getString(
+                                        "discord-messages.account-unlinked",
+                                        "nl:" + "\n",
+                                        "command:" + parts[0]
+                                )
                         ).queue();
                     }
                 }
@@ -93,7 +101,11 @@ public final class StatsCommand extends ListenerAdapter {
 
                     } else {
                         channel.sendMessage(
-                                "> " + target.getUser().getName() + ", does not have an account linked to a Discord account."
+                                ConfigUtil.getString(
+                                        "discord-messages.account-unlinked-target",
+                                        "nl:" + "\n",
+                                        "target:" + target.getUser().getName()
+                                )
                         ).queue();
                     }
                 }
@@ -108,11 +120,10 @@ public final class StatsCommand extends ListenerAdapter {
                         discordID
                 );
 
-        return (
-                uuid != null ?
-                        plugin.getServer().getOfflinePlayer(uuid).getName()
-                        :
-                        null
+        return (uuid != null ?
+                plugin.getServer().getOfflinePlayer(uuid).getName()
+                :
+                null
         );
     }
 
@@ -120,7 +131,8 @@ public final class StatsCommand extends ListenerAdapter {
         final EmbedBuilder embed = new EmbedBuilder();
 
         embed.setDescription(
-                ConfigUtil.getString("stats-embed.description",
+                ConfigUtil.getString(
+                        "stats-embed.description",
                         "player:" + name
                 )
         );
@@ -128,12 +140,28 @@ public final class StatsCommand extends ListenerAdapter {
         final Player player = plugin.getServer().getPlayerExact(name);
         final boolean online = player != null;
 
+        final List<String> list = Arrays.asList(
+                ConfigUtil.getString(
+                        "online-status.online"
+                ),
+                ConfigUtil.getString(
+                        "online-status.online-image"
+                ),
+                ConfigUtil.getString(
+                        "online-status.offline"
+                ),
+                ConfigUtil.getString(
+                        "online-status.offline-image"
+                )
+        );
+
         embed.setAuthor(
-                ConfigUtil.getString("stats-embed.author",
-                        "online_status:" + (online ? "Online" : "Offline")
+                ConfigUtil.getString(
+                        "stats-embed.author",
+                        "online_status:" + (online ? list.get(0) : list.get(2))
                 ),
                 null,
-                online ? "https://eylexlive.github.io/green.png" : "https://eylexlive.github.io/red.png"
+                online ? list.get(1) : list.get(3)
         );
 
         Color color;
@@ -189,7 +217,8 @@ public final class StatsCommand extends ListenerAdapter {
 
                 embed.addField(
                         fieldParts[0],
-                        fieldParts[1], true
+                        fieldParts[1],
+                        true
                 );
             });
 
@@ -198,16 +227,17 @@ public final class StatsCommand extends ListenerAdapter {
                     "stats-embed.custom-fields.fields"
             );
 
+            customFieldList.replaceAll(s ->
+                    s.replace(
+                            "{player_name}", name
+                    )
+            );
+
             statsManager.getStatsList().forEach(stats ->  {
                 final String statsValue = (
                         online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
                 );
 
-                customFieldList.replaceAll(s ->
-                        s.replace(
-                                "{player_name}", name
-                        )
-                );
                 customFieldList.replaceAll(s ->
                         s.replace(
                                 "{stats_" + stats.getName() + "}", stats.getName()

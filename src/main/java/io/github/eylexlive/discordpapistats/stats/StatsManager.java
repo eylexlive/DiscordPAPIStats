@@ -1,6 +1,7 @@
 package io.github.eylexlive.discordpapistats.stats;
 
 import io.github.eylexlive.discordpapistats.DiscordPAPIStats;
+import io.github.eylexlive.discordpapistats.util.config.ConfigUtil;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
 
@@ -102,7 +103,10 @@ public final class StatsManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "----";
+
+        return ConfigUtil.getString(
+                "no-data-available"
+        );
     }
 
     public String getStats(Stats stats, Player player) {

@@ -1,2 +1,2 @@
 # DiscordPAPIStats
-Show your players stats on your Dicord server!
+Show your players stats on your Discord server!

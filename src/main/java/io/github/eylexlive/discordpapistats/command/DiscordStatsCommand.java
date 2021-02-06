@@ -4,6 +4,7 @@ import io.github.eylexlive.discordpapistats.DiscordPAPIStats;
 import io.github.eylexlive.discordpapistats.stats.Stats;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -68,7 +69,9 @@ public final class DiscordStatsCommand implements CommandExecutor {
 
             else if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("delete")) {
-                    final Stats stats = statsManager.getStatsByName(args[1]);
+                    final Stats stats = statsManager.getStatsByName(
+                            args[1], true
+                    );
                     if (stats == null) {
                         sender.sendMessage(
                                 "§cInvalid stats."
@@ -100,7 +103,7 @@ public final class DiscordStatsCommand implements CommandExecutor {
                     }
 
                     final Stats stats = new Stats(args[1], args[2]);
-                    if (statsManager.getStatsByName(stats.getName()) != null) {
+                    if (statsManager.getStatsByName(stats.getName(), true) != null) {
                         sender.sendMessage(
                                 "§cStats already exists."
                         );
@@ -120,7 +123,9 @@ public final class DiscordStatsCommand implements CommandExecutor {
                 }
 
                 else if (args[0].equalsIgnoreCase("setPlaceholder")) {
-                    final Stats stats = statsManager.getStatsByName(args[1]);
+                    final Stats stats = statsManager.getStatsByName(
+                            args[1], true
+                    );
                     if (stats == null) {
                         sender.sendMessage(
                                 "§cInvalid stats."
@@ -151,7 +156,9 @@ public final class DiscordStatsCommand implements CommandExecutor {
                 }
 
                 else if (args[0].equalsIgnoreCase("setName")) {
-                    final Stats stats = statsManager.getStatsByName(args[1]);
+                    final Stats stats = statsManager.getStatsByName(
+                            args[1], true
+                    );
                     if (stats == null) {
                         sender.sendMessage(
                                 "§cInvalid stats."
@@ -182,8 +189,7 @@ public final class DiscordStatsCommand implements CommandExecutor {
     }
 
     private ValidateState isValidate(String placeholder) {
-        final Player player = plugin.getServer()
-                .getOnlinePlayers()
+        final Player player = Bukkit.getOnlinePlayers()
                 .iterator()
                 .next();
 

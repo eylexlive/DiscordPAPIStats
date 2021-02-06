@@ -21,6 +21,17 @@ online-status:
   offline: Offline
   offline-image: 'https://eylexlive.github.io/red.png'
 
+# Per-stats commands
+per-stats-commands:
+  enabled: false
+  command-format: '.s-{stats_name}'
+  embed:
+    description: '{stats_name} stats for player `{player}`'
+    author: '{online_status}' # It can be editable from above
+    color: gray
+    fields:
+      - '**{stats_name}**%VALUE {stats_value}'
+
 # Stats command's embed
 stats-embed:
   description: 'Stats for player `{player}`'

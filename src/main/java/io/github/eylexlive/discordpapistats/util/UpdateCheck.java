@@ -1,6 +1,7 @@
 package io.github.eylexlive.discordpapistats.util;
 
 import io.github.eylexlive.discordpapistats.DiscordPAPIStats;
+import org.bukkit.Bukkit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public final class UpdateCheck {
     }
 
     private void checkUpdate() {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () ->  {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->  {
             log("--------------------------------");
             log("    DiscordPAPIStats    ");
             log(" ");
@@ -43,6 +44,7 @@ public final class UpdateCheck {
             final URLConnection urlConnection = new URL(
                     "https://api.spigotmc.org/legacy/update.php?resource=87888"
             ).openConnection();
+
             spigotPluginVersion = new BufferedReader(
                     new InputStreamReader(
                             urlConnection.getInputStream())
@@ -57,5 +59,4 @@ public final class UpdateCheck {
     private void log(String str) {
         System.out.println(str);
     }
-
 }

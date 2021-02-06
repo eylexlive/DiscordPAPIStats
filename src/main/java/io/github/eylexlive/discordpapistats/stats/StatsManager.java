@@ -3,6 +3,7 @@ package io.github.eylexlive.discordpapistats.stats;
 import io.github.eylexlive.discordpapistats.DiscordPAPIStats;
 import io.github.eylexlive.discordpapistats.util.config.ConfigUtil;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public final class StatsManager {
 
@@ -95,11 +97,11 @@ public final class StatsManager {
         return success;
     }
 
-
     public String getStats(Stats stats, String name) {
         try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name.toLowerCase() + "')")) {
             if (result.next())
                 return result.getString("value");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -118,7 +120,11 @@ public final class StatsManager {
 
     public void saveStats(Player player) {
         statsList.forEach(stats -> {
-            final String value = PlaceholderAPI.setPlaceholders(player, "%" + stats.getPlaceholder() + "%");
+            final String value = PlaceholderAPI.setPlaceholders(
+                    player,
+                    "%" + stats.getPlaceholder() + "%"
+            );
+
             if (!plugin.getStatsDatabase().validateData("select * from '" + stats.getTableName() + "' where name = '"+ player.getName() + "'")) {
                 plugin.getStatsDatabase().update(
                         "insert into '" + stats.getTableName() + "' (name, value) values ('" + player.getName()+"', '" + value + "')"
@@ -133,22 +139,43 @@ public final class StatsManager {
     }
 
     public void saveAll() {
-        plugin.getServer()
-                .getOnlinePlayers()
-                .forEach(
-                        this::saveStats
-                );
+        Bukkit.getOnlinePlayers().forEach(this::saveStats);
     }
 
-    public Stats getStatsByName(String name) {
+    public Stats getStatsByName(String name, boolean equals) {
         for (Stats stats : statsList) {
-            if (stats.getName().equalsIgnoreCase(name))
+            if (equals && stats.getName().equalsIgnoreCase(name))
+                return stats;
+
+            if (name.toLowerCase().contains(stats.getName().toLowerCase()))
                 return stats;
         }
         return null;
     }
 
+
+    public List<String> getPerStatsCommands() {
+        final List<String> list = new ArrayList<>();
+
+        getStatsNames().forEach(name ->
+                list.add(
+                        ConfigUtil.getString(
+                                "per-stats-commands.command-format",
+                                "stats_name:" + name
+                        )
+                )
+        );
+
+        return list;
+    }
+
     public List<Stats> getStatsList() {
         return statsList;
+    }
+
+    public List<String> getStatsNames() {
+        return statsList.stream()
+                .map(Stats::getName)
+                .collect(Collectors.toList());
     }
 }

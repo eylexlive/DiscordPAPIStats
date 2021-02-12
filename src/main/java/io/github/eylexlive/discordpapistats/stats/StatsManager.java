@@ -23,7 +23,7 @@ public final class StatsManager {
         this.plugin = plugin;
     }
 
-    public void loadStats() {
+    public boolean load() {
         plugin.getLogger().info(
                 "[l] Loading all stats... "
         );
@@ -44,12 +44,14 @@ public final class StatsManager {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
 
         plugin.getLogger().info(
                 "[l] Successfully loaded " + statsList.size() + " stat" + (statsList.size() > 1 ? "s." : ".")
         );
+
+        return true;
     }
 
     public boolean createStats(Stats stats) {
@@ -98,7 +100,7 @@ public final class StatsManager {
     }
 
     public String getStats(Stats stats, String name) {
-        try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name.toLowerCase() + "')")) {
+        try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name + "')")) {
             if (result.next())
                 return result.getString("value");
 
@@ -169,13 +171,13 @@ public final class StatsManager {
         return list;
     }
 
-    public List<Stats> getStatsList() {
-        return statsList;
-    }
-
     public List<String> getStatsNames() {
         return statsList.stream()
                 .map(Stats::getName)
                 .collect(Collectors.toList());
+    }
+
+    public List<Stats> getStatsList() {
+        return statsList;
     }
 }

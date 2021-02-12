@@ -35,7 +35,6 @@ public final class UpdateCheck {
             }
             log("--------------------------------");
         });
-
     }
 
     private boolean isAvailable() {

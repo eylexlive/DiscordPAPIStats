@@ -15,7 +15,7 @@ public final class StatsDatabase {
         this.plugin = plugin;
     }
 
-    public void init() {
+    public boolean init() {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -29,14 +29,17 @@ public final class StatsDatabase {
                     "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + File.separator + "database.db"
             );
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
         }
+
+        return true;
     }
 
     public void close() {
         try {
-            if (connection != null && !connection.isClosed())
+            if (connection != null && !connection.isClosed()) {
                 connection.close();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -62,7 +65,6 @@ public final class StatsDatabase {
     }
 
     public ResultSet query(String sql) throws SQLException {
-        final PreparedStatement statement = connection.prepareStatement(sql);
-        return statement.executeQuery();
+        return connection.prepareStatement(sql).executeQuery();
     }
 }

@@ -2,7 +2,6 @@ package io.github.eylexlive.discordpapistats;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import io.github.eylexlive.discordpapistats.command.DiscordStatsCommand;
-import io.github.eylexlive.discordpapistats.command.DiscordStatsTabCompleter;
 import io.github.eylexlive.discordpapistats.command.discord.StatsCommand;
 import io.github.eylexlive.discordpapistats.stats.StatsDatabase;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
@@ -14,6 +13,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -44,6 +46,7 @@ public final class DiscordPAPIStats extends JavaPlugin {
             throw new IllegalStateException(
                     "DiscordPAPIStats can not be started twice!"
             );
+
         instance = this;
 
         config = new Config("config");
@@ -56,16 +59,19 @@ public final class DiscordPAPIStats extends JavaPlugin {
         }
 
         statsDatabase = new StatsDatabase(this);
-        statsDatabase.init();
+
+        if (!statsDatabase.init()) {
+            getLogger().warning("[e] Error while loading the database!");
+        }
 
         statsManager = new StatsManager(this);
-        statsManager.loadStats();
 
-        getCommand("discordstats").setExecutor(
-                new DiscordStatsCommand(this)
-        );
-        getCommand("discordstats").setTabCompleter(
-                new DiscordStatsTabCompleter(this)
+        if (!statsManager.load()) {
+            getLogger().warning("[e] Error while loading stats!");
+        }
+
+        registerCommand(
+                "discordstats", new DiscordStatsCommand(this)
         );
 
         getServer().getPluginManager().registerEvents(new Listener() {
@@ -120,6 +126,22 @@ public final class DiscordPAPIStats extends JavaPlugin {
                 }
             });
             jda.shutdownNow();
+        }
+    }
+
+    private void registerCommand(String cmd, CommandExecutor executor) {
+        final PluginCommand command = getCommand(cmd);
+        if (command == null) {
+            getLogger().warning(
+                    "Command cannot be registered: '/" + cmd + "'"
+            );
+            return;
+        }
+
+        command.setExecutor(executor);
+
+        if (executor instanceof TabCompleter) {
+            command.setTabCompleter((TabCompleter) executor);
         }
     }
 

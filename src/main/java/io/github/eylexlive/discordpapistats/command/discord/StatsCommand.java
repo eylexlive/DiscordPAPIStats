@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,7 +77,7 @@ public final class StatsCommand extends ListenerAdapter {
                                                 user, name
                                         ).build()
                                         :
-                                        getPerStatsEmbed(
+                                        getEmbed(
                                                 user, name,
                                                 statsManager.getStatsByName(parts[0], false)
                                         ).build()
@@ -103,7 +104,7 @@ public final class StatsCommand extends ListenerAdapter {
                                             user, parts[1]
                                     ).build()
                                     :
-                                    getPerStatsEmbed(
+                                    getEmbed(
                                             user, parts[1],
                                             statsManager.getStatsByName(parts[0], false)
                                     ).build()
@@ -120,7 +121,7 @@ public final class StatsCommand extends ListenerAdapter {
                                                 user, name
                                         ).build()
                                         :
-                                        getPerStatsEmbed(
+                                        getEmbed(
                                                 user, name,
                                                 statsManager.getStatsByName(parts[0], false)
                                         ).build()
@@ -144,18 +145,16 @@ public final class StatsCommand extends ListenerAdapter {
     private String matchDiscordSRVPlayer(String discordID) {
         final UUID uuid = plugin.getDiscordSRV()
                 .getAccountLinkManager()
-                .getUuid(
-                        discordID
-                );
+                .getUuid(discordID);
 
-        return (uuid != null ?
-                Bukkit.getOfflinePlayer(uuid).getName()
-                :
-                null
-        );
+        if (uuid == null) {
+            return null;
+        }
+
+        return Bukkit.getOfflinePlayer(uuid).getName();
     }
 
-    private EmbedBuilder getPerStatsEmbed(User user, String name, Stats stats) {
+    private EmbedBuilder getEmbed(User user, String name, Stats stats) {
         final EmbedBuilder embed = new EmbedBuilder();
 
         embed.setDescription(

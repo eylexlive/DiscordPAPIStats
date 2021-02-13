@@ -28,6 +28,7 @@ public final class StatsDatabase {
             connection = DriverManager.getConnection(
                     "jdbc:sqlite:" + plugin.getDataFolder().getAbsolutePath() + File.separator + "database.db"
             );
+
         } catch (SQLException e) {
             return false;
         }

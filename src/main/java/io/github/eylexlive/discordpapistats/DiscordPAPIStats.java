@@ -5,7 +5,6 @@ import io.github.eylexlive.discordpapistats.command.DiscordStatsCommand;
 import io.github.eylexlive.discordpapistats.command.discord.StatsCommand;
 import io.github.eylexlive.discordpapistats.stats.StatsDatabase;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
-import io.github.eylexlive.discordpapistats.util.Metrics;
 import io.github.eylexlive.discordpapistats.util.UpdateCheck;
 import io.github.eylexlive.discordpapistats.util.config.Config;
 import net.dv8tion.jda.api.AccountType;
@@ -13,6 +12,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
@@ -38,7 +38,7 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
     private DiscordSRV discordSRV;
 
-    private JDA jda = null;
+    private JDA jda;
 
     @Override
     public void onEnable() {
@@ -61,13 +61,17 @@ public final class DiscordPAPIStats extends JavaPlugin {
         statsDatabase = new StatsDatabase(this);
 
         if (!statsDatabase.init()) {
-            getLogger().warning("[e] Error while loading the database!");
+            getLogger().warning(
+                    "[e] Error while loading the database!"
+            );
         }
 
         statsManager = new StatsManager(this);
 
         if (!statsManager.load()) {
-            getLogger().warning("[e] Error while loading stats!");
+            getLogger().warning(
+                    "[e] Error while loading stats!"
+            );
         }
 
         registerCommand(
@@ -79,9 +83,7 @@ public final class DiscordPAPIStats extends JavaPlugin {
             public void handleJoinEvent(PlayerJoinEvent event) {
                 // Save data to see offline player stats **NOT WORKS ON QUIT EVENT**
                 CompletableFuture.runAsync(() ->
-                        statsManager.saveStats(
-                                event.getPlayer()
-                        )
+                        statsManager.saveStats(event.getPlayer())
                 );
             }
 
@@ -99,16 +101,17 @@ public final class DiscordPAPIStats extends JavaPlugin {
                         .setToken(config.getString("bot-token"))
                         .addEventListeners(new StatsCommand(this))
                         .build();
+
             } catch (LoginException e) {
                 e.printStackTrace();
             }
         });
 
-        new Metrics(this);
+        new Metrics(this, 10011);
 
         // Save data every minute to see offline player stats
-        getServer().getScheduler().runTaskTimerAsynchronously(
-                this, () -> statsManager.saveAll(), 100L, 1200L
+        getServer().getScheduler().runTaskTimerAsynchronously(this, () ->
+                statsManager.saveAll(), 100L, 1200L
         );
     }
 
@@ -129,11 +132,11 @@ public final class DiscordPAPIStats extends JavaPlugin {
         }
     }
 
-    private void registerCommand(String cmd, CommandExecutor executor) {
-        final PluginCommand command = getCommand(cmd);
+    private void registerCommand(String cmdString, CommandExecutor executor) {
+        final PluginCommand command = getCommand(cmdString);
         if (command == null) {
             getLogger().warning(
-                    "Command cannot be registered: '/" + cmd + "'"
+                    "Command cannot be registered: '/" + cmdString + "'"
             );
             return;
         }

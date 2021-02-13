@@ -82,6 +82,10 @@
               <pattern>org.slf4j</pattern>
               <shadedPattern>io.github.eylexlive.discordpapistats.depend.slf4j</shadedPattern>
             </relocation>
+            <relocation>
+              <pattern>org.bstats</pattern>
+              <shadedPattern>io.github.eylexlive.discordpapistats.util.metrics</shadedPattern>
+            </relocation>
           </relocations>
           <minimizeJar>true</minimizeJar>
           <filters>
@@ -148,12 +152,6 @@
       <groupId>me.clip</groupId>
       <artifactId>placeholderapi</artifactId>
       <version>2.9.2</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -225,6 +223,10 @@
         <exclusion>
           <artifactId>text-adapter-bukkit</artifactId>
           <groupId>net.kyori</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>json-simple</artifactId>
+          <groupId>com.googlecode.json-simple</groupId>
         </exclusion>
         <exclusion>
           <artifactId>guava</artifactId>

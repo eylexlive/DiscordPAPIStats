@@ -20,19 +20,27 @@ public final class UpdateCheck {
 
     private void checkUpdate() {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->  {
-            log("--------------------------------");
-            log("    DiscordPAPIStats    ");
-            log(" ");
+            log(
+                    "--------------------------------",
+                    "    DiscordPAPIStats    ",
+                    " "
+            );
 
             if (isAvailable()) {
-                log(" A new update is available at ");
-                log(" spigotmc.org/resources/87888 ");
-                log(" ");
+                log(
+                        " A new update is available at ",
+                        " spigotmc.org/resources/87888 ",
+                        " "
+                );
+
             } else {
-                log(" Not update found. ");
-                log(" Last version running! ");
-                log(" ");
+                log(
+                        " Not update found. ",
+                        " Last version running! ",
+                        " "
+                );
             }
+
             log("--------------------------------");
         });
     }
@@ -48,6 +56,7 @@ public final class UpdateCheck {
                     new InputStreamReader(
                             urlConnection.getInputStream())
             ).readLine();
+
         } catch (IOException e) {
             return false;
         }
@@ -55,7 +64,9 @@ public final class UpdateCheck {
         return !plugin.getDescription().getVersion().equals(spigotPluginVersion);
     }
 
-    private void log(String str) {
-        System.out.println(str);
+    private void log(String... strings) {
+        for (String str : strings) {
+            System.out.println(str);
+        }
     }
 }

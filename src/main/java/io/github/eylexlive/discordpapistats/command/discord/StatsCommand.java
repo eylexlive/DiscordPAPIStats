@@ -3,6 +3,7 @@ package io.github.eylexlive.discordpapistats.command.discord;
 import io.github.eylexlive.discordpapistats.DiscordPAPIStats;
 import io.github.eylexlive.discordpapistats.stats.Stats;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
+import io.github.eylexlive.discordpapistats.util.ReplaceUtil;
 import io.github.eylexlive.discordpapistats.util.config.ConfigUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,7 +12,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -232,20 +232,16 @@ public final class StatsCommand extends ListenerAdapter {
                 "per-stats-commands.embed.fields"
         );
 
-        fields.replaceAll(s ->
-                s.replace("{player_name}", name)
-        );
-
-        fields.replaceAll(s ->
-                s.replace("{stats_name}", (stats == null ? "NONE" : stats.getName()))
-        );
-
-        fields.replaceAll(s ->
-                s.replace("{stats_value}", statsValue)
+        ReplaceUtil.replacePlaceholders(
+                fields,
+                "player_name:" + name,
+                "stats_name:" + (stats == null ? "NONE" : stats.getName()),
+                "stats_value:" + statsValue
         );
 
         fields.forEach(field -> {
             final String[] fieldParts = field.split("%VALUE");
+
             embed.addField(
                     fieldParts[0],
                     fieldParts[1],
@@ -352,8 +348,9 @@ public final class StatsCommand extends ListenerAdapter {
                     "stats-embed.custom-fields.fields"
             );
 
-            customFieldList.replaceAll(s ->
-                    s.replace("{player_name}", name)
+            ReplaceUtil.replacePlaceholders(
+                    customFieldList,
+                    "player_name:" + name
             );
 
             statsManager.getStatsList()
@@ -362,17 +359,16 @@ public final class StatsCommand extends ListenerAdapter {
                                 online ? statsManager.getStats(stats, player) : statsManager.getStats(stats, name)
                         );
 
-                        customFieldList.replaceAll(s ->
-                                s.replace("{stats_" + stats.getName() + "}", stats.getName())
-                        );
-
-                        customFieldList.replaceAll(s ->
-                                s.replace("{stats_" + stats.getName() + "_value}", statsValue)
+                        ReplaceUtil.replacePlaceholders(
+                                customFieldList,
+                                "stats_" + stats.getName() + ":" + stats.getName(),
+                                "stats_" + stats.getName() + "_value:" + statsValue
                         );
                     });
 
             customFieldList.forEach(field -> {
                 final String[] fieldParts = field.split("%VALUE");
+
                 embed.addField(
                         fieldParts[0],
                         fieldParts[1],

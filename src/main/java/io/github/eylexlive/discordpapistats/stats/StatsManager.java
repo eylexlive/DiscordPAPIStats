@@ -140,6 +140,14 @@ public final class StatsManager {
         });
     }
 
+  /*
+    public String parse(Stats stats, boolean isOnline) {
+        return (
+                stats == null ? "NONE" : isOnline ? getStats(stats, player) : getStats(stats, name)
+        );
+    }
+  */
+
     public void saveAll() {
         Bukkit.getOnlinePlayers().forEach(this::saveStats);
     }

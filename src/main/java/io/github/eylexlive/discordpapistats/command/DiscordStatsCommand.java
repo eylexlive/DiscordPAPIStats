@@ -46,6 +46,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                                 "   §8▸ §f/dcstats delete §e<stats name>",
                                 "   §8▸ §f/dcstats setName §e<stats name> <new name>",
                                 "   §8▸ §f/dcstats setPlaceholder §e<stats name> <new placeholder>",
+                                "   §8▸ §f/dcstats info §e<player | offline player>",
                                 "   §8▸ §f/dcstats list",
                                 "   §8▸ §f/dcstats reload",
                                 "",
@@ -58,9 +59,13 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     sender.sendMessage(
                             "§fStats list:"
                     );
-                    statsManager.getStatsList().forEach(stats -> sender.sendMessage(
-                            "§8- §e" + stats.getName() + "§8: §f" + stats.getPlaceholder()
-                    ));
+
+                    statsManager.getStatsList()
+                            .forEach(stats ->
+                                    sender.sendMessage(
+                                            "§8- §e" + stats.getName() + "§8: §f" + stats.getPlaceholder()
+                                    )
+                            );
                 }
 
                 else if (args[0].equalsIgnoreCase("reload")) {
@@ -77,6 +82,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     final Stats stats = statsManager.getStatsByName(
                             args[1], true
                     );
+
                     if (stats == null) {
                         sender.sendMessage(
                                 "§cInvalid stats."
@@ -95,6 +101,35 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                         );
                     }
                 }
+
+                else if (args[0].equalsIgnoreCase("info")) {
+                    final Player target = Bukkit.getPlayerExact(args[1]);
+                    final boolean online = target != null;
+
+                    sender.sendMessage(new String[] {
+                                    "",
+                                    "§fPlayer information:",
+                                    "",
+                                    "§8- §ePlayer name§8: §f" + args[1],
+                                    "§8- §eOnline status§8: §f" + (online ? "Online" : "Offline"),
+                                    "",
+                                    "§fStats information:",
+                                    ""
+                            }
+                    );
+
+                    statsManager.getStatsList()
+                            .forEach(stats -> {
+                                        final String statsValue = (
+                                                online ? statsManager.getStats(stats, target) : statsManager.getStats(stats, args[1])
+                                        );
+
+                                        sender.sendMessage(
+                                                "§8- §e" + stats.getName() + "§8: §f" + statsValue
+                                        );
+                                    }
+                            );
+                }
             }
 
             else if (args.length == 3) {
@@ -102,6 +137,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     final ValidateState state = isValidate(
                             args[2]
                     );
+
                     if (!state.isValidate()) {
                         sender.sendMessage("§c" + state.getCause());
                         return true;
@@ -131,6 +167,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     final Stats stats = statsManager.getStatsByName(
                             args[1], true
                     );
+
                     if (stats == null) {
                         sender.sendMessage(
                                 "§cInvalid stats."
@@ -141,6 +178,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     final ValidateState state = isValidate(
                             args[2]
                     );
+
                     if (!state.isValidate()) {
                         sender.sendMessage("§c" + state.getCause());
                         return true;
@@ -164,6 +202,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     final Stats stats = statsManager.getStatsByName(
                             args[1], true
                     );
+
                     if (stats == null) {
                         sender.sendMessage(
                                 "§cInvalid stats."
@@ -235,6 +274,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     "delete",
                     "setName",
                     "setPlaceholder",
+                    "info",
                     "list",
                     "reload"
             );
@@ -253,7 +293,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
         return null;
     }
 
-    private class ValidateState {
+    private final class ValidateState {
 
         private final String cause;
 

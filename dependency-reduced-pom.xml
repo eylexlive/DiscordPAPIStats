@@ -83,6 +83,10 @@
               <shadedPattern>io.github.eylexlive.discordpapistats.depend.slf4j</shadedPattern>
             </relocation>
             <relocation>
+              <pattern>com.zaxxer.hikari</pattern>
+              <shadedPattern>io.github.eylexlive.discordpapistats.depend.hikari</shadedPattern>
+            </relocation>
+            <relocation>
               <pattern>org.bstats</pattern>
               <shadedPattern>io.github.eylexlive.discordpapistats.util.metrics</shadedPattern>
             </relocation>

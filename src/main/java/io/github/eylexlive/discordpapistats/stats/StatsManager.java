@@ -6,8 +6,6 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,46 +21,48 @@ public final class StatsManager {
         this.plugin = plugin;
     }
 
-    public boolean load() {
+    public void load() {
         plugin.getLogger().info(
                 "[l] Loading all stats... "
         );
 
-        try (ResultSet result = plugin.getStatsDatabase().query("select name from sqlite_master where type ='table' and name not like 'sqlite_%'")) {
-            while (result.next()) {
-                final String[] parts = result.getString(1).split("%");
-                if (parts.length != 2)
-                    continue;
+        plugin.getStatsDatabase()
+                .getStats()
+                .forEach(stat ->  {
+                            final String[] parts = stat.split(
+                                    ConfigUtil.getStringSafely(
+                                            "stats-separator"
+                                    )
+                            );
 
-                statsList.add(
-                        new Stats(parts[0], parts[1])
+                            if (parts.length == 2) {
+                                final Stats stats = new Stats(
+                                        parts[0], parts[1]
+                                );
+
+                                statsList.add(stats);
+
+                                plugin.getLogger().info(
+                                        "[l] Loaded " + stats.getName()
+                                );
+                            }
+                        }
                 );
-
-                plugin.getLogger().info(
-                        "[l] Loaded " + parts[0]
-                );
-            }
-
-        } catch (SQLException e) {
-            return false;
-        }
 
         plugin.getLogger().info(
                 "[l] Successfully loaded " + statsList.size() + " stat" + (statsList.size() > 1 ? "s." : ".")
         );
-
-        return true;
     }
 
     public boolean createStats(Stats stats) {
         final boolean success = plugin.getStatsDatabase().update(
-                "create table if not exists '" + stats.getTableName() + "' (name TEXT PRIMARY KEY, value TEXT)"
+                "create table if not exists `" + stats.getTableName() + "` (name VARCHAR(255) NOT NULL PRIMARY KEY, value VARCHAR(255) NOT NULL)"
         );
 
         if (success) {
             statsList.add(stats);
-            CompletableFuture.runAsync(
-                    this::saveAll
+            CompletableFuture.runAsync(() ->
+                    Bukkit.getOnlinePlayers().forEach(this::saveStats)
             );
         }
 
@@ -71,7 +71,7 @@ public final class StatsManager {
 
     public boolean deleteStats(Stats stats) {
         final boolean success = plugin.getStatsDatabase().update(
-                "drop table '" + stats.getTableName() + "'"
+                "drop table `" + stats.getTableName() + "`"
         );
 
         if (success) statsList.remove(stats);
@@ -81,7 +81,7 @@ public final class StatsManager {
 
     public boolean setName(Stats stats, String newName) {
         final boolean success = plugin.getStatsDatabase().update(
-               "alter table '" + stats.getTableName() + "' rename to '" + newName + "%" + stats.getPlaceholder() + "'"
+               "alter table `" + stats.getTableName() + "` rename to `" + newName + ConfigUtil.getStringSafely("stats-separator") + stats.getPlaceholder() + "`"
         );
 
         if (success) stats.setName(newName);
@@ -91,7 +91,7 @@ public final class StatsManager {
 
     public boolean setPlaceholder(Stats stats, String newPlaceholder) {
         final boolean success = plugin.getStatsDatabase().update(
-                "alter table '" + stats.getTableName() + "' rename to '" + stats.getName() + "%" + newPlaceholder + "'"
+                "alter table `" + stats.getTableName() + "` rename to `" + stats.getName() + ConfigUtil.getStringSafely("stats-separator") + newPlaceholder + "`"
         );
 
         if (success) stats.setPlaceholder(newPlaceholder);
@@ -100,12 +100,13 @@ public final class StatsManager {
     }
 
     public String getStats(Stats stats, String name) {
-        try (ResultSet result = plugin.getStatsDatabase().query("select * from '" + stats.getTableName() + "' where lower(name) = lower('" + name + "')")) {
-            if (result.next())
-                return result.getString("value");
+        final String value =  plugin.getStatsDatabase().get(
+                "select * from `" + stats.getTableName() + "` where lower(name) = lower('" + name + "')",
+                "value"
+        );
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (value != null) {
+            return value;
         }
 
         return ConfigUtil.getString(
@@ -127,46 +128,31 @@ public final class StatsManager {
                     "%" + stats.getPlaceholder() + "%"
             );
 
-            if (!plugin.getStatsDatabase().validateData("select * from '" + stats.getTableName() + "' where name = '"+ player.getName() + "'")) {
+            if (plugin.getStatsDatabase().get("select * from `" + stats.getTableName() + "` where name = '"+ player.getName() + "'", "value") == null) {
                 plugin.getStatsDatabase().update(
-                        "insert into '" + stats.getTableName() + "' (name, value) values ('" + player.getName()+"', '" + value + "')"
+                        "insert into `" + stats.getTableName() + "` (name, value) values ('" + player.getName()+"', '" + value + "')"
                 );
+
             } else {
                 plugin.getStatsDatabase().update(
-                        "update '" + stats.getTableName() + "' set value = '" + value + "' where name='" + player.getName() + "'"
+                        "update `" + stats.getTableName() + "` set value = '" + value + "' where name='" + player.getName() + "'"
                 );
             }
 
         });
     }
 
-  /*
-    public String parse(Stats stats, boolean isOnline) {
-        return (
-                stats == null ? "NONE" : isOnline ? getStats(stats, player) : getStats(stats, name)
-        );
-    }
-  */
-
-    public void saveAll() {
-        Bukkit.getOnlinePlayers().forEach(this::saveStats);
-    }
-
     public Stats getStatsByName(String name, boolean equals) {
         for (Stats stats : statsList) {
-            if (equals && stats.getName().equalsIgnoreCase(name))
-                return stats;
-
-            if (name.toLowerCase().contains(stats.getName().toLowerCase()))
+            if (equals && stats.getName().equalsIgnoreCase(name)
+                    || name.toLowerCase().contains(stats.getName().toLowerCase()))
                 return stats;
         }
         return null;
     }
 
-
     public List<String> getPerStatsCommands() {
         final List<String> list = new ArrayList<>();
-
         getStatsNames().forEach(name ->
                 list.add(
                         ConfigUtil.getString(
@@ -175,7 +161,6 @@ public final class StatsManager {
                         )
                 )
         );
-
         return list;
     }
 

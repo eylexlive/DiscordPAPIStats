@@ -1,10 +1,12 @@
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\util\ReplaceUtil.java
+C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\database\StatsDatabase.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\util\config\Config.java
-C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\stats\StatsDatabase.java
+C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\database\MySQLDatabase.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\util\config\ConfigUtil.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\command\discord\StatsCommand.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\command\DiscordStatsCommand.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\stats\Stats.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\stats\StatsManager.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\util\UpdateCheck.java
+C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\database\SQLiteDatabase.java
 C:\Users\pc\IdeaProjects\DiscordStats\src\main\java\io\github\eylexlive\discordpapistats\DiscordPAPIStats.java

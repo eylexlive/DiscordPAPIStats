@@ -5,9 +5,11 @@ io\github\eylexlive\discordpapistats\DiscordPAPIStats$2.class
 io\github\eylexlive\discordpapistats\command\DiscordStatsCommand.class
 io\github\eylexlive\discordpapistats\DiscordPAPIStats$1.class
 io\github\eylexlive\discordpapistats\util\config\ConfigUtil.class
+io\github\eylexlive\discordpapistats\database\StatsDatabase.class
 io\github\eylexlive\discordpapistats\stats\StatsManager.class
 io\github\eylexlive\discordpapistats\util\UpdateCheck.class
 io\github\eylexlive\discordpapistats\command\discord\StatsCommand.class
+io\github\eylexlive\discordpapistats\database\MySQLDatabase.class
 io\github\eylexlive\discordpapistats\stats\Stats.class
-io\github\eylexlive\discordpapistats\stats\StatsDatabase.class
+io\github\eylexlive\discordpapistats\database\SQLiteDatabase.class
 io\github\eylexlive\discordpapistats\DiscordPAPIStats.class

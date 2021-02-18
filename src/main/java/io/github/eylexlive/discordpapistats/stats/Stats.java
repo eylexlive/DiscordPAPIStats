@@ -1,5 +1,7 @@
 package io.github.eylexlive.discordpapistats.stats;
 
+import io.github.eylexlive.discordpapistats.util.config.ConfigUtil;
+
 public final class Stats {
 
     private String name, placeholder;
@@ -26,6 +28,6 @@ public final class Stats {
     }
 
     public String getTableName() {
-        return name + "%" + placeholder;
+        return name + ConfigUtil.getStringSafely("stats-separator") + placeholder;
     }
 }

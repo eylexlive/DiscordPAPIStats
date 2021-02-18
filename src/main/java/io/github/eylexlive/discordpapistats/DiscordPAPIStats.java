@@ -3,7 +3,9 @@ package io.github.eylexlive.discordpapistats;
 import github.scarsz.discordsrv.DiscordSRV;
 import io.github.eylexlive.discordpapistats.command.DiscordStatsCommand;
 import io.github.eylexlive.discordpapistats.command.discord.StatsCommand;
-import io.github.eylexlive.discordpapistats.stats.StatsDatabase;
+import io.github.eylexlive.discordpapistats.database.MySQLDatabase;
+import io.github.eylexlive.discordpapistats.database.SQLiteDatabase;
+import io.github.eylexlive.discordpapistats.database.StatsDatabase;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
 import io.github.eylexlive.discordpapistats.util.UpdateCheck;
 import io.github.eylexlive.discordpapistats.util.config.Config;
@@ -22,6 +24,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.security.auth.login.LoginException;
 import java.util.concurrent.CompletableFuture;
@@ -42,10 +45,11 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (instance != null)
+        if (instance != null) {
             throw new IllegalStateException(
                     "DiscordPAPIStats can not be started twice!"
             );
+        }
 
         instance = this;
 
@@ -58,25 +62,14 @@ public final class DiscordPAPIStats extends JavaPlugin {
             );
         }
 
-        statsDatabase = new StatsDatabase(this);
-
-        if (!statsDatabase.init()) {
-            getLogger().warning(
-                    "[e] Error while loading the database!"
-            );
-        }
+        statsDatabase = (
+                isSQL() ? new MySQLDatabase() : new SQLiteDatabase()
+        ).connect();
 
         statsManager = new StatsManager(this);
+        statsManager.load();
 
-        if (!statsManager.load()) {
-            getLogger().warning(
-                    "[e] Error while loading stats!"
-            );
-        }
-
-        registerCommand(
-                "discordstats", new DiscordStatsCommand(this)
-        );
+        registerCommand("discordstats", new DiscordStatsCommand(this));
 
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler (priority = EventPriority.MONITOR)
@@ -111,7 +104,9 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
         // Save data every minute to see offline player stats
         getServer().getScheduler().runTaskTimerAsynchronously(this, () ->
-                statsManager.saveAll(), 100L, 1200L
+                getServer().getOnlinePlayers().forEach(p ->
+                        statsManager.saveStats(p)
+                ), 100L, 1200L
         );
     }
 
@@ -169,7 +164,12 @@ public final class DiscordPAPIStats extends JavaPlugin {
         return statsManager;
     }
 
+    @Nullable
     public DiscordSRV getDiscordSRV() {
         return discordSRV;
+    }
+
+    public boolean isSQL() {
+        return config.getBoolean("mysql.enabled");
     }
 }

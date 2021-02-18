@@ -134,9 +134,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
 
             else if (args.length == 3) {
                 if (args[0].equalsIgnoreCase("create")) {
-                    final ValidateState state = isValidate(
-                            args[2]
-                    );
+                    final ValidateState state = isValidate(args[2]);
 
                     if (!state.isValidate()) {
                         sender.sendMessage("§c" + state.getCause());
@@ -175,9 +173,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                         return true;
                     }
 
-                    final ValidateState state = isValidate(
-                            args[2]
-                    );
+                    final ValidateState state = isValidate(args[2]);
 
                     if (!state.isValidate()) {
                         sender.sendMessage("§c" + state.getCause());

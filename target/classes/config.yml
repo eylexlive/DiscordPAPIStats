@@ -1,6 +1,23 @@
 # TOKEN
 bot-token: Your token here.
 
+# Database settings, if set to false, SQLite is used
+# If you are going to use the plugin with MySQL on multiple servers
+# Create a new database for each server on MySQL like: 'discordstats_server1, discordstats_server2'
+mysql:
+  enabled: false
+  host: localhost
+  port: 3306
+  database: discordstats_server1
+  username: root
+  password: 1234
+  use-ssl: false
+
+# The character used to separate the stats name and the stats placeholder
+# You may need to use it when necessary
+# DO NOT change unless necessary
+stats-separator: '%'
+
 # DO NOT change unless necessary
 avatar-api: 'https://minotar.net/avatar/{player}'
 

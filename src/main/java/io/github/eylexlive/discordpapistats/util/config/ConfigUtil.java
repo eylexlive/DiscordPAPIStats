@@ -17,11 +17,9 @@ public final class ConfigUtil {
         final String str = plugin.getConfig().getString(path);
         if (str == null)
             return "Key not found!";
-
         final Pattern pattern = Pattern.compile("&([0-fk-or])");
         if (!pattern.matcher(str).find())
             return str;
-
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 
@@ -33,8 +31,15 @@ public final class ConfigUtil {
             final String value = str.replaceFirst(Matcher.quoteReplacement(placeholder + ":"), "");
             s = s.replaceAll("\\{" + Matcher.quoteReplacement(placeholder) + "\\}", value);
         }
-
         return s;
+    }
+
+    @NotNull
+    public static String getStringSafely(String path) {
+        final String str = plugin.getConfig().getString(path);
+        if (str == null)
+            return "Key not found!";
+        return str;
     }
 
     @NotNull
@@ -44,5 +49,9 @@ public final class ConfigUtil {
 
     public static boolean getBoolean(String path) {
         return plugin.getConfig().getBoolean(path);
+    }
+
+    public static int getInt(String path) {
+        return plugin.getConfig().getInt(path);
     }
 }

@@ -1,5 +1,5 @@
 name: DiscordPAPIStats
-version: 1.9
+version: 2.0
 author: EylexLive
 main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
 description: Show your players stats on your Discord server!

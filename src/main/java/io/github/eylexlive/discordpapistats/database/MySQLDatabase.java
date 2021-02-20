@@ -12,7 +12,7 @@ public final class MySQLDatabase extends StatsDatabase {
     private HikariDataSource dataSource;
 
     @Override
-    public StatsDatabase connect() {
+    public void connect() {
         dataSource = new HikariDataSource();
         dataSource.setPoolName("DiscordPAPIStatsMYSQLPool");
 
@@ -61,7 +61,6 @@ public final class MySQLDatabase extends StatsDatabase {
                         )
                 )
         );
-        return this;
     }
 
     @Override
@@ -107,8 +106,7 @@ public final class MySQLDatabase extends StatsDatabase {
         return tables;
     }
 
-    @Override
-    public Connection getConnection() throws SQLException {
+    private Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 }

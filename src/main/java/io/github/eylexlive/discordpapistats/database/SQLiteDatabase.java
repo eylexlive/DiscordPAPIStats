@@ -9,7 +9,7 @@ public final class SQLiteDatabase extends StatsDatabase {
     private Connection connection;
 
     @Override
-    public StatsDatabase connect() {
+    public void connect() {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
@@ -25,7 +25,6 @@ public final class SQLiteDatabase extends StatsDatabase {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return this;
     }
 
     @Override
@@ -73,10 +72,5 @@ public final class SQLiteDatabase extends StatsDatabase {
             return null;
         }
         return tables;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return connection;
     }
 }

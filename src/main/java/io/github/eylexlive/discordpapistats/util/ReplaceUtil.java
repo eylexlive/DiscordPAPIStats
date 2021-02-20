@@ -9,7 +9,9 @@ public final class ReplaceUtil {
         for (String str : placeholders) {
             final String placeholder = str.split(":")[0];
             final String value = str.replaceFirst(Matcher.quoteReplacement(placeholder + ":"), "");
-            list.replaceAll(s -> s.replace("{" + Matcher.quoteReplacement(placeholder) + "}", value));
+            list.replaceAll(s ->
+                    s.replace("{" + Matcher.quoteReplacement(placeholder) + "}", value)
+            );
         }
     }
 }

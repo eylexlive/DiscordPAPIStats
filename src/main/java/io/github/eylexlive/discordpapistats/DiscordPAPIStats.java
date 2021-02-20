@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
@@ -22,6 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,23 +57,20 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
         config = new Config("config");
 
-        if (getServer().getPluginManager().isPluginEnabled("DiscordSRV")) {
+        final PluginManager pm = Bukkit.getPluginManager();
+        if (pm.getPlugin("DiscordSRV") != null) {
             discordSRV = DiscordSRV.getPlugin();
             getLogger().info(
                     "[l] Hooked into DiscordSRV"
             );
         }
 
-        statsDatabase = (
-                isSQL() ? new MySQLDatabase() : new SQLiteDatabase()
-        ).connect();
+        statsDatabase = isSQL() ? new MySQLDatabase() : new SQLiteDatabase();
+        statsDatabase.connect();
 
-        statsManager = new StatsManager(this);
-        statsManager.load();
+        registerCommand(new DiscordStatsCommand(this));
 
-        registerCommand("discordstats", new DiscordStatsCommand(this));
-
-        getServer().getPluginManager().registerEvents(new Listener() {
+        pm.registerEvents(new Listener() {
             @EventHandler (priority = EventPriority.MONITOR)
             public void handleJoinEvent(PlayerJoinEvent event) {
                 // Save data to see offline player stats **NOT WORKS ON QUIT EVENT**
@@ -84,9 +83,13 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
         new UpdateCheck(this);
 
-        getServer().getScheduler().runTask(this, () -> {
-            if (jda != null)
+        statsManager = new StatsManager(this);
+        statsManager.load();
+
+        Bukkit.getScheduler().runTask(this, () -> {
+            if (jda != null) {
                 jda.shutdown();
+            }
 
             try {
                 jda = new JDABuilder(AccountType.BOT)
@@ -100,11 +103,12 @@ public final class DiscordPAPIStats extends JavaPlugin {
             }
         });
 
+        // Metrics
         new Metrics(this, 10011);
 
         // Save data every minute to see offline player stats
-        getServer().getScheduler().runTaskTimerAsynchronously(this, () ->
-                getServer().getOnlinePlayers().forEach(p ->
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () ->
+                Bukkit.getOnlinePlayers().forEach(p ->
                         statsManager.saveStats(p)
                 ), 100L, 1200L
         );
@@ -112,8 +116,9 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (statsDatabase != null)
+        if (statsDatabase != null) {
             statsDatabase.close();
+        }
 
         if (jda != null) {
             final CompletableFuture<Void> future = new CompletableFuture<>();
@@ -127,12 +132,9 @@ public final class DiscordPAPIStats extends JavaPlugin {
         }
     }
 
-    private void registerCommand(String cmdString, CommandExecutor executor) {
-        final PluginCommand command = getCommand(cmdString);
+    private void registerCommand(CommandExecutor executor) {
+        final PluginCommand command = getCommand("discordstats");
         if (command == null) {
-            getLogger().warning(
-                    "Command cannot be registered: '/" + cmdString + "'"
-            );
             return;
         }
 

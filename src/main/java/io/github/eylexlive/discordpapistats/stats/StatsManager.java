@@ -25,10 +25,9 @@ public final class StatsManager {
         plugin.getLogger().info(
                 "[l] Loading all stats... "
         );
-
         plugin.getStatsDatabase()
                 .getStats()
-                .forEach(stat ->  {
+                .forEach(stat -> {
                             final String[] parts = stat.split(
                                     ConfigUtil.getStringSafely(
                                             "stats-separator"
@@ -48,7 +47,6 @@ public final class StatsManager {
                             }
                         }
                 );
-
         plugin.getLogger().info(
                 "[l] Successfully loaded " + statsList.size() + " stat" + (statsList.size() > 1 ? "s." : ".")
         );
@@ -101,17 +99,11 @@ public final class StatsManager {
 
     public String getStats(Stats stats, String name) {
         final String value =  plugin.getStatsDatabase().get(
-                "select * from `" + stats.getTableName() + "` where lower(name) = lower('" + name + "')",
+                "select * from `" + stats.getTableName() + "` where lower(name) = '" + name.toLowerCase() + "'",
                 "value"
         );
 
-        if (value != null) {
-            return value;
-        }
-
-        return ConfigUtil.getString(
-                "no-data-available"
-        );
+        return value != null ? value : ConfigUtil.getString("no-data-available");
     }
 
     public String getStats(Stats stats, Player player) {
@@ -138,7 +130,6 @@ public final class StatsManager {
                         "update `" + stats.getTableName() + "` set value = '" + value + "' where name='" + player.getName() + "'"
                 );
             }
-
         });
     }
 

@@ -4,6 +4,7 @@ bot-token: Your token here.
 # Database settings, if set to false, SQLite is used
 # If you are going to use the plugin with MySQL on multiple servers
 # Create a new database for each server on MySQL like: 'discordstats_server1, discordstats_server2'
+# Otherwise, data may conflict
 mysql:
   enabled: false
   host: localhost
@@ -17,6 +18,10 @@ mysql:
 # You may need to use it when necessary
 # DO NOT change unless necessary
 stats-separator: '%'
+
+# Stats added to this list are ignored. (The data are not saved)
+stats-filter-list:
+  - 'Example_Stats_Name'
 
 # DO NOT change unless necessary
 avatar-api: 'https://minotar.net/avatar/{player}'
@@ -39,6 +44,8 @@ online-status:
   offline-image: 'https://eylexlive.github.io/red.png'
 
 # Per-stats commands
+# If you enable this option,
+# A command is defined for each statistic you add
 per-stats-commands:
   enabled: false
   command-format: '.s-{stats_name}'
@@ -61,9 +68,9 @@ stats-embed:
     fields:
       - '**Name**%VALUE {player_name}'
       # {stats_Kills_value} = The value of the statistic named Kills.
-      - '**{stats_Kills}**%VALUE {stats_Kills_value}'
+      - '**Kills**%VALUE {stats_Kills_value}'
       # {stats_Deaths_value} = The value of the statistic named Deaths.
-      - '**{stats_Deaths}**%VALUE {stats_Deaths_value}'
+      - '**Deaths**%VALUE {stats_Deaths_value}'
 
 # {nl} = new line
 discord-messages:
@@ -72,4 +79,3 @@ discord-messages:
   account-unlinked: '> No account linked to your Discord account.{nl}
    > Correct usage: `{command} <player | @mention>`'
   account-unlinked-target: '> {target}, does not have an account linked to a Discord account.'
-

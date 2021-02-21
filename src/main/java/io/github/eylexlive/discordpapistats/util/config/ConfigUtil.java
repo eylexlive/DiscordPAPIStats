@@ -54,4 +54,9 @@ public final class ConfigUtil {
     public static int getInt(String path) {
         return plugin.getConfig().getInt(path);
     }
+
+    public static void set(String path, Object value) {
+        plugin.getConfig().set(path, value);
+        plugin.getConfig().save();
+    }
 }

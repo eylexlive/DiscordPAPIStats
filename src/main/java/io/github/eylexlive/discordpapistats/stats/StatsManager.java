@@ -36,7 +36,11 @@ public final class StatsManager {
 
                             if (parts.length == 2) {
                                 final Stats stats = new Stats(
-                                        parts[0], parts[1]
+                                        parts[0],
+                                        parts[1],
+                                        ConfigUtil.getStringList(
+                                                "stats-filter-list"
+                                        ).contains(parts[0])
                                 );
 
                                 statsList.add(stats);
@@ -97,6 +101,25 @@ public final class StatsManager {
         return success;
     }
 
+    public boolean filterStats(Stats stats) {
+        final boolean filtered = !stats.isFiltered();
+
+        stats.setFiltered(filtered);
+
+        final List<String> filterList = ConfigUtil.getStringList("stats-filter-list");
+
+        if (filtered)
+            filterList.add(stats.getName());
+        else
+            filterList.remove(stats.getName());
+
+        ConfigUtil.set(
+                "stats-filter-list", filterList
+        );
+
+        return filtered;
+    }
+
     public String getStats(Stats stats, String name) {
         final String value =  plugin.getStatsDatabase().get(
                 "select * from `" + stats.getTableName() + "` where lower(name) = '" + name.toLowerCase() + "'",
@@ -107,30 +130,43 @@ public final class StatsManager {
     }
 
     public String getStats(Stats stats, Player player) {
-        return PlaceholderAPI.setPlaceholders(
+        final String placeholder = stats.getPlaceholder();
+        final String value = PlaceholderAPI.setPlaceholders(
                 player,
-                "%" + stats.getPlaceholder() + "%"
+                "%" + placeholder + "%"
         );
+
+        if ((placeholder.contains("%") || value.equals("%" + placeholder + "%"))) {
+            return getStats(stats, player.getName());
+        }
+
+        return value;
     }
 
     public void saveStats(Player player) {
-        statsList.forEach(stats -> {
-            final String value = PlaceholderAPI.setPlaceholders(
-                    player,
-                    "%" + stats.getPlaceholder() + "%"
-            );
+        statsList.stream()
+                .filter(stats -> !stats.isFiltered())
+                .forEach(stats -> {
+                            final String placeholder = stats.getPlaceholder();
+                            final String value = PlaceholderAPI.setPlaceholders(
+                                    player,
+                                    "%" + placeholder + "%"
+                            );
 
-            if (plugin.getStatsDatabase().get("select * from `" + stats.getTableName() + "` where name = '"+ player.getName() + "'", "value") == null) {
-                plugin.getStatsDatabase().update(
-                        "insert into `" + stats.getTableName() + "` (name, value) values ('" + player.getName()+"', '" + value + "')"
-                );
+                            if (!(placeholder.contains("%") || value.equals("%" + placeholder + "%"))) {
+                                if (plugin.getStatsDatabase().get("select * from `" + stats.getTableName() + "` where name = '"+ player.getName() + "'", "value") == null) {
+                                    plugin.getStatsDatabase().update(
+                                            "insert into `" + stats.getTableName() + "` (name, value) values ('" + player.getName()+"', '" + value + "')"
+                                    );
 
-            } else {
-                plugin.getStatsDatabase().update(
-                        "update `" + stats.getTableName() + "` set value = '" + value + "' where name='" + player.getName() + "'"
+                                } else {
+                                    plugin.getStatsDatabase().update(
+                                            "update `" + stats.getTableName() + "` set value = '" + value + "' where name='" + player.getName() + "'"
+                                    );
+                                }
+                            }
+                        }
                 );
-            }
-        });
     }
 
     public Stats getStatsByName(String name, boolean equals) {

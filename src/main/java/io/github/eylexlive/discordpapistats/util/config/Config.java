@@ -35,6 +35,14 @@ public final class Config extends YamlConfiguration {
         }
     }
 
+    public void save() {
+        try {
+            super.save(this.file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void copyDefaults() {
         final InputStream inputStream = plugin.getResource(file.getName());
 

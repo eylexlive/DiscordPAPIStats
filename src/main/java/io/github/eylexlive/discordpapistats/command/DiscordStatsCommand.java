@@ -46,6 +46,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                                 "   §8▸ §f/dcstats delete §e<stats name>",
                                 "   §8▸ §f/dcstats setName §e<stats name> <new name>",
                                 "   §8▸ §f/dcstats setPlaceholder §e<stats name> <new placeholder>",
+                                "   §8▸ §f/dcstats filter §e<stats name>",
                                 "   §8▸ §f/dcstats info §e<player | offline player>",
                                 "   §8▸ §f/dcstats list",
                                 "   §8▸ §f/dcstats reload",
@@ -98,6 +99,30 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     } else {
                         sender.sendMessage(
                                 "§aStats successfully deleted."
+                        );
+                    }
+                }
+
+                else if (args[0].equalsIgnoreCase("filter")) {
+                    final Stats stats = statsManager.getStatsByName(
+                            args[1], true
+                    );
+
+                    if (stats == null) {
+                        sender.sendMessage(
+                                "§cInvalid stats."
+                        );
+                        return true;
+                    }
+
+                    if (!statsManager.filterStats(stats)) {
+                        sender.sendMessage(
+                                "§aThe stats filter has been disabled. This stats data will now be saved."
+                        );
+
+                    } else {
+                        sender.sendMessage(
+                                "§aThe stats filter has been enabled! The data for this stats will no longer be saved."
                         );
                     }
                 }
@@ -270,6 +295,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                     "delete",
                     "setName",
                     "setPlaceholder",
+                    "filter",
                     "info",
                     "list",
                     "reload"

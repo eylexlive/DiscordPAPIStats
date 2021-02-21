@@ -6,6 +6,14 @@ public final class Stats {
 
     private String name, placeholder;
 
+    private boolean filtered;
+
+    public Stats(String name, String placeholder, boolean filtered) {
+        this.name = name;
+        this.placeholder = placeholder;
+        this.filtered = filtered;
+    }
+
     public Stats(String name, String placeholder) {
         this.name = name;
         this.placeholder = placeholder;
@@ -25,6 +33,14 @@ public final class Stats {
 
     public void setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
+    }
+
+    public boolean isFiltered() {
+        return filtered;
+    }
+
+    public void setFiltered(boolean filtered) {
+        this.filtered = filtered;
     }
 
     public String getTableName() {

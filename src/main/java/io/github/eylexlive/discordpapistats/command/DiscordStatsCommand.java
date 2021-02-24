@@ -306,6 +306,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
                 case "delete":
                 case "setname":
                 case "setplaceholder":
+                case "filter":
                     return plugin.getStatsManager().getStatsNames();
             }
 

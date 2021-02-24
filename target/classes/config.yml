@@ -2,7 +2,11 @@
 bot-token: Your token here.
 
 # Database settings, if set to false, SQLite is used
-# If you are going to use the plugin with MySQL on multiple servers
+
+# 1- If you want to show multiple server data in one embed message
+# Connect all servers to the same database
+
+# 2- If you don't want to show multiple server data in one embed message
 # Create a new database for each server on MySQL like: 'discordstats_server1, discordstats_server2'
 # Otherwise, data may conflict
 mysql:

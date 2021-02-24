@@ -61,6 +61,14 @@ public final class MySQLDatabase extends StatsDatabase {
                         )
                 )
         );
+
+        dataSource.addDataSourceProperty(
+                "prepStmtCacheSize", "250"
+        );
+
+        dataSource.addDataSourceProperty(
+                "prepStmtCacheSqlLimit", "2048"
+        );
     }
 
     @Override

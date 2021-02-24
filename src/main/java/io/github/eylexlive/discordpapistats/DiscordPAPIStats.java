@@ -57,8 +57,8 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
         config = new Config("config");
 
-        final PluginManager pm = Bukkit.getPluginManager();
-        if (pm.getPlugin("DiscordSRV") != null) {
+        final PluginManager manager = Bukkit.getPluginManager();
+        if (manager.getPlugin("DiscordSRV") != null) {
             discordSRV = DiscordSRV.getPlugin();
             getLogger().info(
                     "[l] Hooked into DiscordSRV"
@@ -68,9 +68,16 @@ public final class DiscordPAPIStats extends JavaPlugin {
         statsDatabase = isSQL() ? new MySQLDatabase() : new SQLiteDatabase();
         statsDatabase.connect();
 
-        registerCommand(new DiscordStatsCommand(this));
+        final PluginCommand plCmd = getCommand("discordstats");
+        if (plCmd == null) {
+            return;
+        }
 
-        pm.registerEvents(new Listener() {
+        final DiscordStatsCommand cmd = new DiscordStatsCommand(this);
+        plCmd.setExecutor(cmd);
+        plCmd.setTabCompleter(cmd);
+
+        manager.registerEvents(new Listener() {
             @EventHandler (priority = EventPriority.MONITOR)
             public void handleJoinEvent(PlayerJoinEvent event) {
                 // Save data to see offline player stats **NOT WORKS ON QUIT EVENT**
@@ -129,19 +136,6 @@ public final class DiscordPAPIStats extends JavaPlugin {
                 }
             });
             jda.shutdownNow();
-        }
-    }
-
-    private void registerCommand(CommandExecutor executor) {
-        final PluginCommand command = getCommand("discordstats");
-        if (command == null) {
-            return;
-        }
-
-        command.setExecutor(executor);
-
-        if (executor instanceof TabCompleter) {
-            command.setTabCompleter((TabCompleter) executor);
         }
     }
 

@@ -171,9 +171,10 @@ public final class StatsManager {
 
     public Stats getStatsByName(String name, boolean equals) {
         for (Stats stats : statsList) {
-            if (equals && stats.getName().equalsIgnoreCase(name)
-                    || name.toLowerCase().contains(stats.getName().toLowerCase()))
+            if (equals && stats.getName().equalsIgnoreCase(name) ||
+                    !equals && name.toLowerCase().contains(stats.getName().toLowerCase())) {
                 return stats;
+            }
         }
         return null;
     }

@@ -23,13 +23,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.security.auth.login.LoginException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public final class DiscordPAPIStats extends JavaPlugin {
 
@@ -58,7 +64,20 @@ public final class DiscordPAPIStats extends JavaPlugin {
         config = new Config("config");
 
         final PluginManager manager = Bukkit.getPluginManager();
-        if (manager.getPlugin("DiscordSRV") != null) {
+
+        if (manager.isPluginEnabled("PlugMan")) {
+            final Plugin plugManPlugin = manager.getPlugin("PlugMan");
+            try {
+                final List<String> ignoredPlugins = (List<String>) plugManPlugin.getClass().getMethod("getIgnoredPlugins").invoke(plugManPlugin);
+                if (!ignoredPlugins.contains("DiscordPAPIStats")) {
+                    ignoredPlugins.add("DiscordPAPIStats");
+                }
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (manager.isPluginEnabled("DiscordSRV")) {
             discordSRV = DiscordSRV.getPlugin();
             getLogger().info(
                     "[l] Hooked into DiscordSRV"
@@ -68,14 +87,11 @@ public final class DiscordPAPIStats extends JavaPlugin {
         statsDatabase = isSQL() ? new MySQLDatabase() : new SQLiteDatabase();
         statsDatabase.connect();
 
-        final PluginCommand plCmd = getCommand("discordstats");
-        if (plCmd == null) {
-            return;
+        final PluginCommand cmd = getCommand("discordstats");
+        if (cmd != null) {
+            cmd.setExecutor(new DiscordStatsCommand(this));
+            cmd.setTabCompleter(new DiscordStatsCommand(this));
         }
-
-        final DiscordStatsCommand cmd = new DiscordStatsCommand(this);
-        plCmd.setExecutor(cmd);
-        plCmd.setTabCompleter(cmd);
 
         manager.registerEvents(new Listener() {
             @EventHandler (priority = EventPriority.MONITOR)
@@ -99,12 +115,10 @@ public final class DiscordPAPIStats extends JavaPlugin {
             }
 
             try {
-                jda = new JDABuilder(AccountType.BOT)
+                jda = JDABuilder.createDefault(config.getString("bot-token"))
                         .setAutoReconnect(true)
-                        .setToken(config.getString("bot-token"))
                         .addEventListeners(new StatsCommand(this))
                         .build();
-
             } catch (LoginException e) {
                 e.printStackTrace();
             }
@@ -136,6 +150,13 @@ public final class DiscordPAPIStats extends JavaPlugin {
                 }
             });
             jda.shutdownNow();
+            jda = null;
+
+            try {
+                future.get(5, TimeUnit.SECONDS);
+            } catch (TimeoutException | InterruptedException | ExecutionException e) {
+                getLogger().warning("JDA took too long to shutdown, skipping!");
+            }
         }
     }
 

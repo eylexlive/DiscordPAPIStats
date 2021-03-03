@@ -1,13 +1,14 @@
 name: DiscordPAPIStats
-version: 2.0
-author: EylexLive
-main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
+version: 2.1
 description: Show your players stats on your Discord server!
+author: EylexLive
+website: https://spigotmc.org/resources/87888
+api-version: 1.13
+
+main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
 depend: [PlaceholderAPI]
 softdepend: [DiscordSRV]
 
 commands:
   discordstats:
-    aliases:
-      - dcstats
-      - dcpstats
+    aliases: [dcstats, dcpstats]

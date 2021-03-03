@@ -1,13 +1,14 @@
 name: DiscordPAPIStats
 version: ${project.version}
-author: EylexLive
-main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
 description: ${project.description}
+author: EylexLive
+website: https://spigotmc.org/resources/87888
+api-version: 1.13
+
+main: io.github.eylexlive.discordpapistats.DiscordPAPIStats
 depend: [PlaceholderAPI]
 softdepend: [DiscordSRV]
 
 commands:
   discordstats:
-    aliases:
-      - dcstats
-      - dcpstats
+    aliases: [dcstats, dcpstats]

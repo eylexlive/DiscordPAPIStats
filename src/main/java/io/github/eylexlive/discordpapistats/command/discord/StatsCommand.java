@@ -33,8 +33,9 @@ public final class StatsCommand extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final User user = event.getAuthor();
-        if (user.isBot())
+        if (user.isBot()) {
             return;
+        }
 
         final MessageChannel channel = event.getChannel();
 

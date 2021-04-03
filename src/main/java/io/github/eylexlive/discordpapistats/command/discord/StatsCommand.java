@@ -140,7 +140,6 @@ public final class StatsCommand extends ListenerAdapter {
                 }
             }
         }
-
     }
 
     private String matchDiscordSRVPlayer(String discordID) {
@@ -363,7 +362,9 @@ public final class StatsCommand extends ListenerAdapter {
                         ReplaceUtil.replacePlaceholders(
                                 customFieldList,
                                 "stats_" + stats.getName() + ":" + stats.getName(),
-                                "stats_" + stats.getName() + "_value:" + statsValue
+                                "stats_" + stats.getName() + "_value:" + statsValue,
+                                stats.getName() + ":" + statsValue,
+                                stats.getPlaceholder() + ":" + statsValue
                         );
                     });
 

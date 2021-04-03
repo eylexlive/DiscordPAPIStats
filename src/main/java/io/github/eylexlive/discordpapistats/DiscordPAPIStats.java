@@ -9,16 +9,14 @@ import io.github.eylexlive.discordpapistats.database.StatsDatabase;
 import io.github.eylexlive.discordpapistats.stats.StatsManager;
 import io.github.eylexlive.discordpapistats.util.UpdateCheck;
 import io.github.eylexlive.discordpapistats.util.config.Config;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -122,6 +120,17 @@ public final class DiscordPAPIStats extends JavaPlugin {
             } catch (LoginException e) {
                 e.printStackTrace();
             }
+
+            if (config.getBoolean("bot-activity.enabled")) {
+                jda.getPresence().setActivity(
+                        Activity.of(
+                                Activity.ActivityType.valueOf(
+                                        config.getString("bot-activity.type")
+                                ),
+                                config.getString("bot-activity.value")
+                        )
+                );
+            }
         });
 
         // Metrics
@@ -155,7 +164,9 @@ public final class DiscordPAPIStats extends JavaPlugin {
             try {
                 future.get(5, TimeUnit.SECONDS);
             } catch (TimeoutException | InterruptedException | ExecutionException e) {
-                getLogger().warning("JDA took too long to shutdown, skipping!");
+                getLogger().warning(
+                        "JDA took too long to shutdown, skipping!"
+                );
             }
         }
     }

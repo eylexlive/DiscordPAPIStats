@@ -1,6 +1,15 @@
 # TOKEN
 bot-token: Your token here.
 
+# There are total 3 activity types
+# 1- DEFAULT
+# 2- WATCHING
+# 3- LISTENING
+bot-activity:
+  enabled: false
+  type: DEFAULT
+  value: 'Minecraft'
+
 # Database settings, if set to false, SQLite is used
 
 # 1- If you want to show multiple server data in one embed message

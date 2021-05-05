@@ -37,7 +37,7 @@ stats-filter-list:
   - 'Example_Stats_Name'
 
 # DO NOT change unless necessary
-avatar-api: 'https://minotar.net/avatar/{player}'
+avatar-api: 'https://mc-heads.net/avatar/{player}/256.png'
 
 # Stats command "prefix + command"
 stats-command: '.stats'

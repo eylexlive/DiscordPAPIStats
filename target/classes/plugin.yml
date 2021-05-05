@@ -1,5 +1,5 @@
 name: DiscordPAPIStats
-version: 2.2
+version: 2.3
 description: Show your players stats on your Discord server!
 author: EylexLive
 website: https://spigotmc.org/resources/87888
@@ -11,4 +11,5 @@ softdepend: [DiscordSRV]
 
 commands:
   discordstats:
+    permission: dcpapistats.admin
     aliases: [dcstats, dcpstats]

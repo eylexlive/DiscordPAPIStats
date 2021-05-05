@@ -51,12 +51,6 @@ public final class DiscordPAPIStats extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (instance != null) {
-            throw new IllegalStateException(
-                    "DiscordPAPIStats can not be started twice!"
-            );
-        }
-
         instance = this;
 
         config = new Config("config");
@@ -95,7 +89,7 @@ public final class DiscordPAPIStats extends JavaPlugin {
             @EventHandler (priority = EventPriority.MONITOR)
             public void handleJoinEvent(PlayerJoinEvent event) {
                 // Save data to see offline player stats **NOT WORKS ON QUIT EVENT**
-                CompletableFuture.runAsync(() ->
+                Bukkit.getScheduler().runTaskAsynchronously(instance, () ->
                         statsManager.saveStats(event.getPlayer())
                 );
             }

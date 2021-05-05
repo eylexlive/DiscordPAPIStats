@@ -11,4 +11,5 @@ softdepend: [DiscordSRV]
 
 commands:
   discordstats:
+    permission: dcpapistats.admin
     aliases: [dcstats, dcpstats]

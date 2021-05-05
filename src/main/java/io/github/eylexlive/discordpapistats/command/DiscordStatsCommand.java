@@ -37,7 +37,7 @@ public final class DiscordStatsCommand implements CommandExecutor, TabCompleter 
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         final StatsManager statsManager = plugin.getStatsManager();
 
-        if (sender.isOp()) {
+        if (sender.hasPermission("dcpapistats.admin")) {
             if (args.length == 0) {
                 sender.sendMessage(mainMsg);
                 sender.sendMessage(new String[] {

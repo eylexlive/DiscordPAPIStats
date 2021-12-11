@@ -6,6 +6,7 @@ import io.github.eylexlive.discordpapistats.stats.StatsManager;
 import io.github.eylexlive.discordpapistats.util.ReplaceUtil;
 import io.github.eylexlive.discordpapistats.util.config.ConfigUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -33,7 +34,12 @@ public final class StatsCommand extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final User user = event.getAuthor();
+        final ChannelType channelType = event.getChannelType();
         if (user.isBot()) {
+            return;
+        }
+        
+        if (!channelType.isGuild()) {
             return;
         }
 
